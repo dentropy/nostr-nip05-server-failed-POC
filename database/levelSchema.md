@@ -1,3 +1,5 @@
+#### Origional Schema
+
 * root
     * Desciption: The data required to use the application
     * Keys:
@@ -95,3 +97,58 @@
         * purchase_${PURCHASE_NUM}
         * change_log_${ZERO_PADDED_CHANGE_NUMBER}
         * change_log_count
+
+#### Queries
+
+* Index is like a SQL table
+* KEY_VALUE_PATTERN is like a column
+* GET, UPDATE, REMOVE
+
+* admin_identities
+	* **Queries**
+	* GET all `$NOSTR_PUBLIC_KEY`'s from index `admin_identities` on KEY_VALUE_PATTERN `"admin_npub_key_${NOSTR_PUBLIC_KEY}"`
+	* GET if `$NOSTR_PUBLIC_KEY` in index `admin_identities` on KEY_VALUE_PATTERN `"admin_npub_key_${NOSTR_PUBLIC_KEY}"`
+	* UPDATE index `admin_identities` to add `$NOSTR_PUBLIC_KEY` on KEY_VALUE_PATTERN `"admin_npub_key_${NOSTR_PUBLIC_KEY}"`
+	* UPDATE index `admin_identities` to add `$NOSTR_PUBLIC_KEY` on KEY_VALUE_PATTERN `"admin_npub_key_${NOSTR_PUBLIC_KEY}"`
+* nostr_identities
+	* **Queries**
+	* GET all `$NOSTR_PUBLIC_KEY`'s from index nostr_identities on KEY_VALUE_PATTERN `"user_npub_key_${NOSTR_PUBLIC_KEY}"`
+	* GET if `$NOSTR_PUBLIC_KEY` in index nostr_identities on KEY_VALUE_PATTERN `"user_npub_key_${NOSTR_PUBLIC_KEY}"`
+	* INSER index `nostr_identities` to add `$NOSTR_PUBLIC_KEY` on KEY_VALUE_PATTERN `"user_npub_key_${NOSTR_PUBLIC_KEY}"`
+* dns_names
+	* **Queries**
+	* GET value from  KEY_VALUE_PATTERN `all_dns_names` index `dns_names`
+	* GET value from  KEY_VALUE_PATTERN `public_dns_names` index `dns_names`
+	* GET value from  KEY_VALUE_PATTERN `default_dns_name` index `dns_names`
+	* UPDATE index `dns_names` with jq change for `all_dns_names` including logs to KEY_VALUE_PATTERN s `change_log_all_dns_names_json_jq_count` and `change_log_all_dns_names_json_jq_index_${LOG_AUTO_INCREMENT}`
+	* INSERT index `dns_names` with jq change for `public_dns_names` including logs to KEY_VALUE_PATTERN s `change_log_public_dns_names_jq_count` and `change_log_public_dns_names_jq_index_${LOG_AUTO_INCREMENT}`
+	* Update index `dns_names` KEY_VALUE_PATTERN default_dns_name with a STRING
+* nostr_dot_json_jq_changes
+	* **Queries**
+	* GET all `$DNS_NAME`'s from index `nostr_dot_json_jq_changes` on KEY_VALUE_PATTERN `nostr_json_${DNS_NAME}`
+	* GET if `$DNS_NAME` in index `nostr_dot_json_jq_changes` on KEY_VALUE_PATTERN `nostr_json_${DNS_NAME}`
+	* INSERT index `nostr_dot_json_jq_changes` to add `$DNS_NAME on KEY_VALUE_PATTERN ` `user_npub_key_${NOSTR_PUBLIC_KEY}`  including logs to KEY_VALUE_PATTERN s `change_log_${DNS_NAME}_jq_index_${LOG_AUTO_INCREMENT}` and `change_log_${DNS_NAME}_jq_count`
+* coupons
+	* **Use Cases**
+	* Create a coupon with limited number of uses
+	* Deactivate a coupon code
+	* Check who claimed a coupon code
+	* *Claim Coupon User Journey*
+	* *Create Coupon User Journey*
+	* *Update Coupon User Journey*
+	* **Queries**
+	* GET all VALUEs for `$COUPON_CODE`s from index `coupons` KEY_VALUE_PATTERN `coupon_code_${COUPON_CODE}`
+	* GET specific VALUE for `$COUPON_CODE` from index `coupons` KEY_VALUE_PATTERN `coupon_code_${COUPON_CODE}`
+* nostr_relays
+	* **Use Cases**
+	* **Queries**
+	* GET all VALUES from index `nostr_relays` on KEY_VALUE_PATTERN `nostr_relay_domain_${DNS_NAME}`
+	* GET if `$DNS_NAME` in index `nostr_relays` on KEY_VALUE_PATTERN `nostr_relay_domain_${DNS_NAME}`
+	* UPDATE index `nostr_relays` to add `$DNS_NAME` on KEY_VALUE_PATTERN `nostr_relay_domain_${DNS_NAME}` including logs to KEY_VALUE_PATTERN s `change_log_${LOG_AUTO_INCREMENT}` and `change_log_count`
+* purchases
+	* **Use Cases**
+	* **Queries**
+* offers
+	* **Use Cases**
+	* **Queries**
+	* #TODO
