@@ -1,6 +1,38 @@
 {
     "app_names" : ["nostr-nip05-server"],
+    "tags" : ["nostr", "nip05", "ddaemon"],
     "authors"   : ["dentropy@ddaemon.org"],
+    "schema_graph" : {
+        "elements" : [
+            {
+                
+                "data" : {
+                    "id" : "",
+                    "dd_type" : ""
+                }
+            }
+        ]
+    },
+    "schema_variables" : {
+        "IPNS_NAME" : {
+            "Description" : "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+        },
+        "NOSTR_PUBLIC_KEY" : {
+            "Description" : "Just take the npub off the nostr public key"
+        },
+        "DNS_NAME" : {
+            "Description" : "A DNS Name, pretty self explanitory"
+        },
+        "COUPON_CODE" : {
+            "Desciption" : "Self explanitory"
+        },
+        "PURCHASE_NUM" : {
+            "Description" : "Self explanitory"
+        },
+        "LOG_AUTO_INCREMENT" : {
+            "Description" : "Increments with the log going up"
+        }
+    },
     "schema" : {
         "root" : {
             "key_value_patterns" : [
@@ -20,33 +52,36 @@
                     "purchases" : "${IPNS_NAME}"
                 },
                 "change_log_namespace_to_ipns_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
         },
         "admin_identities" : {
             "key_value_patterns" : [
-                "admin_npub_key_*",
-                "change_log_index_*",
+                "admin_npub_key_${NOSTR_PUBLIC_KEY}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
         },
         "nostr_identities" : {
             "key_value_patterns" : [
-                "user_npub_key_*",
-                "change_log_index_*",
+                "user_npub_key_${NOSTR_PUBLIC_KEY}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
@@ -57,17 +92,19 @@
                 "public_dns_names",
                 "default_dns_name",
                 "change_log_all_dns_names_json_jq_count",
-                "change_log_all_dns_names_json_jq_index_*",
+                "change_log_all_dns_names_json_jq_index_${LOG_AUTO_INCREMENT}",
                 "change_log_public_dns_names_jq_count",
-                "change_log_public_dns_names_jq_index_"
+                "change_log_public_dns_names_jq_index_${LOG_AUTO_INCREMENT}"
             ],
             "load_defaults" : {
                 "change_log_all_dns_names_json_jq_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 },
                 "change_log_public_dns_names_jq_count"   : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
@@ -75,7 +112,7 @@
         "nostr_dot_json_jq_changes" : {
             "key_value_patterns" : [
                 "nostr_json_${DNS_NAME}",
-                "change_log_${DNS_NAME}_jq_index_${ZERO_PADDED_CHANGE_NUMBER}",
+                "change_log_${DNS_NAME}_jq_index_${LOG_AUTO_INCREMENT}",
                 "change_log_${DNS_NAME}_jq_count"
             ],
             "load_defaults" : {}
@@ -83,15 +120,14 @@
         "coupons" : {
             "key_value_patterns" : [
                 "coupon_code_${COUPON_CODE}",
-                "coupon_valid_${COUPON_CODE}",
-                "coupon_claimed_${COUPON_CODE}_${ZERO_PADDED_CLAIM_NUMBER}",
-                "coupon_removed_${COUPON_CODE}",
-                "change_log_${ZERO_PADDED_CHANGE_NUMBER}",
+                "coupon_claimed_${COUPON_CODE}_${CLAIM_NUMBER}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
@@ -99,40 +135,42 @@
         "offers" : {
             "key_value_patterns" : [
                 "offer_${DNS_NAME}",
-                "coupon_valid_${COUPON_CODE}",
-                "change_log_index_${ZERO_PADDED_CHANGE_NUMBER}_${ZERO_PADDED_CLAIM_NUMBER}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
         },
         "nostr_relays" : {
             "key_value_patterns" : [
-                "nostr_relay_domain_${WEBSOCKET_TYPE}_${RELAY_DOMAIN_NAME}",
-                "change_log_${ZERO_PADDED_CHANGE_NUMBER}",
+                "nostr_relay_domain_${DNS_NAME}",
+                "change_log_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
         },
         "purchases" : {
             "key_value_patterns" : [
-                "nostr_relay_domain_${WEBSOCKET_TYPE}_${RELAY_DOMAIN_NAME}",
+                "nostr_relay_domain_${DNS_NAME}",
                 "purchase_${PURCHASE_NUM}",
-                "hange_log_${ZERO_PADDED_CHANGE_NUMBER}",
+                "change_log_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value_0.0.1",
+                    "type" : "raw_value",
+                    "version": "0.0.1",
                     "value" : 0
                 }
             }
