@@ -2,17 +2,6 @@
     "app_names" : ["nostr-nip05-server"],
     "tags" : ["nostr", "nip05", "ddaemon"],
     "authors"   : ["dentropy@ddaemon.org"],
-    "schema_graph" : {
-        "elements" : [
-            {
-                
-                "data" : {
-                    "id" : "",
-                    "dd_type" : ""
-                }
-            }
-        ]
-    },
     "schema_variables" : {
         "IPNS_NAME" : {
             "Description" : "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
@@ -31,30 +20,37 @@
         },
         "LOG_AUTO_INCREMENT" : {
             "Description" : "Increments with the log going up"
+        },
+        "COUPON_CLAIM_NUMBER" : {
+            "Description" : "Coupon Claim Number"
         }
     },
     "schema" : {
         "root" : {
             "key_value_patterns" : [
                 "namespace_to_ipns",
-                "change_log_namespace_to_ipns_index_*",
-                "change_log_namespace_to_ipns_count"
+                "change_log_index_*",
+                "change_log_count"
             ],
             "load_defaults" : {
                 "namespace_to_ipns"  : {
-                    "admin_identities" : "${IPNS_NAME}",
-                    "nostr_identities" : "${IPNS_NAME}",
-                    "dns_names" : "${IPNS_NAME}",
-                    "nostr_dot_json_jq_changes" : "${IPNS_NAME}",
-                    "coupons" : "${IPNS_NAME}",
-                    "offers" : "${IPNS_NAME}",
-                    "nostr_relays" : "${IPNS_NAME}",
-                    "purchases" : "${IPNS_NAME}"
+                    "type" : "json_value",
+                    "version": "0.0.1",
+                    "value" : {
+                        "admin_identities" : "${IPNS_NAME}",
+                        "nostr_identities" : "${IPNS_NAME}",
+                        "dns_names" : "${IPNS_NAME}",
+                        "nostr_dot_json_jq_changes" : "${IPNS_NAME}",
+                        "coupons" : "${IPNS_NAME}",
+                        "offers" : "${IPNS_NAME}",
+                        "nostr_relays" : "${IPNS_NAME}",
+                        "purchases" : "${IPNS_NAME}"
+                    }
                 },
                 "change_log_namespace_to_ipns_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         },
@@ -66,9 +62,9 @@
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         },
@@ -80,9 +76,9 @@
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         },
@@ -98,14 +94,14 @@
             ],
             "load_defaults" : {
                 "change_log_all_dns_names_json_jq_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 },
                 "change_log_public_dns_names_jq_count"   : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         },
@@ -120,15 +116,15 @@
         "coupons" : {
             "key_value_patterns" : [
                 "coupon_code_${COUPON_CODE}",
-                "coupon_claimed_${COUPON_CODE}_${CLAIM_NUMBER}",
+                "coupon_claimed_${COUPON_CODE}_${COUPON_CLAIM_NUMBER}",
                 "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         },
@@ -140,9 +136,9 @@
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         },
@@ -154,9 +150,9 @@
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         },
@@ -169,9 +165,9 @@
             ],
             "load_defaults" : {
                 "change_log_count" : {
-                    "type" : "raw_value",
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value" : 0
+                    "value" : { "count" : 0 }
                 }
             }
         }

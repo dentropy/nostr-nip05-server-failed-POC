@@ -1,3 +1,4 @@
+#### nostr-nip05-server
 
 ``` bash
 
@@ -17,4 +18,12 @@ export NOSTR_DNS_NAME=""
 
 export NOSTR_DNS_NAME="dentropic.net"
 
+
+node ./database/levelSchema.js
 ```
+
+
+#### Reminders
+
+* [ed25519-keygen - npm](https://www.npmjs.com/package/ed25519-keygen)
+* [leveldb sublevel example](https://github.com/Level/level?tab=readme-ov-file#dbbatchoperations-options-callback)
