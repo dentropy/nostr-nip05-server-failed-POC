@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-let raw_json = await fs.readFileSync("./levelSchema.json")
+let raw_json = await fs.readFileSync("./database/levelSchema.json")
 let levelSchema = JSON.parse(raw_json)
 
 console.log( JSON.stringify(levelSchema, null, 2))
@@ -56,7 +56,7 @@ Object.keys(levelSchema.schema).forEach( (dd_index)=> {
                     id : `dd_index__${dd_index}` + "__TO__" + `key_value_pattern__${key_value_pattern}`,
                     source : `dd_index__${dd_index}`,
                     target : `key_value_pattern__${key_value_pattern}`,
-                    display_name : "index_to_kvp"
+                    type : "index_to_kvp"
                 } 
             }
         )
@@ -75,7 +75,7 @@ Object.keys(levelSchema.schema).forEach( (dd_index)=> {
                     id : `key_value_pattern__${key_value_pattern}` + "__TO__" + `schema_variable__${schema_variable}`,
                     source : `key_value_pattern__${key_value_pattern}`,
                     target : `schema_variable__${schema_variable}`,
-                    display_name : "kbp_to_schema_variable"
+                    type : "kbp_to_schema_variable"
                 } 
             }
         )
@@ -86,5 +86,5 @@ Object.keys(levelSchema.schema).forEach( (dd_index)=> {
 
 // VALUES
 
-await fs.writeFileSync("cytoscapeElements.json", JSON.stringify(elements, null, 2))
-await fs.writeFileSync("cytoscapeElements.js", "let mah_elements = " + JSON.stringify(elements, null, 2) )
+await fs.writeFileSync("./database/cytoscapeElements.json", JSON.stringify(elements, null, 2))
+await fs.writeFileSync("./database/cytoscapeElements.js", "let mah_elements = " + JSON.stringify(elements, null, 2) )
