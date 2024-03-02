@@ -61,6 +61,8 @@
   <label for="option1">Show 1N Nodes</label><br>
   <input type="radio" id="option2" name="options" value="show_2D_nodes">
   <label for="option2">Show 2N Nodes</label><br>
+  <input type="radio" id="option2" name="options" value="show_3D_nodes">
+  <label for="option3">Show 3N Nodes</label><br>
   <div id="cy"></div>
 
   <script>
@@ -84,7 +86,11 @@
         ],
 
         layout: {
-        name: 'breadthfirst'
+          name : "cose"  
+          // "circle"
+          // 'grid' 
+          // 'concentric' 
+          //'breadthfirst'
         }
       });
 
@@ -272,7 +278,7 @@
                     // Enqueue neighbors of current node
                     currentNode.neighborhood().nodes().forEach(function(neighbor) {
                         var distance = dijkstra.distanceTo(neighbor);
-                        if (!nodesToReturn.has(neighbor) && distance <= 3 ) {
+                        if (!nodesToReturn.has(neighbor) && distance <= 2 ) {
                             queue.push(neighbor);
                         }
                     });
@@ -289,7 +295,41 @@
                         node.remove();
                     }
                 });
+        }
+        if(selectedOption == "show_3D_nodes"){
+            var clickedNode = event.target;
+            var nodesToReturn = new Set(); // Using a Set to ensure uniqueness
+            
+            var dijkstra = cy.elements().dijkstra(clickedNode, function(edge){
+                return 1; // Assuming all edges have equal weight
+            });
+            // Breadth-first search function
+            function bfs(startNode) {
+                var queue = [startNode];
+                while (queue.length > 0) {
+                    var currentNode = queue.shift();
+                    nodesToReturn.add(currentNode);
+                    // Enqueue neighbors of current node
+                    currentNode.neighborhood().nodes().forEach(function(neighbor) {
+                        var distance = dijkstra.distanceTo(neighbor);
+                        if (!nodesToReturn.has(neighbor) && distance <= 4 ) {
+                            queue.push(neighbor);
+                        }
+                    });
+                }
             }
+            // Perform BFS starting from the clicked node
+            bfs(clickedNode);
+            // Convert Set to array for further processing if needed
+            var nodesArray = Array.from(nodesToReturn);
+            // Do whatever you want with the nodes
+            // Remove nodes that are not in the nodesToReturn set
+            cy.nodes().forEach(function(node) {
+                    if (!nodesToReturn.has(node)) {
+                        node.remove();
+                    }
+                });
+        }
     })
 
 
