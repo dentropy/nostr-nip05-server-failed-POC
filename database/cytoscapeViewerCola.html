@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cytoscape.js Graph with Node Types Toggle</title>
+  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+  <script src="./cytoscapeElements.js"></script>
+  <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-cola@2.3.0/cytoscape-cola.min.js"></script>
+  <style>
+    #cy {
+    width: 100vw;
+    height: calc(100vh - 200px);
+    display: block;
+    }
+
+
+    .legend {
+      margin-top: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .legend-item span {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cytoscape.js Graph of nostr_nip05_server</h1>
+  <div class="legend">
+    <div class="legend-item">
+      <span style="background-color: red;"></span>
+      index; The name of a sublevel in LevelDB
+    </div>
+    <div class="legend-item">
+      <span style="background-color: blue;"></span>
+      key_value_patterns; The pattern for keys within a Sublevel of LevelDB
+    </div>
+    <div class="legend-item">
+        <span style="background-color: green;"></span>
+        schema_variables; The variables that connect the data
+      </div>
+  </div>
+  <label><input type="checkbox" id="type__schema_variables" checked>schema_variables Nodes</label>
+  <label><input type="checkbox" id="type__key_value_patterns" checked>key_value_patterns Nodes</label>
+  <label><input type="checkbox" id="type__index" checked>index Nodes</label>
+  <label><input type="checkbox" id="type__index_to_kvp" checked>index_to_kvp Edge</label>
+  <label><input type="checkbox" id="type__kbp_to_schema_variable" checked>kbp_to_schema_variable Edge</label><br/>
+  <button id="get_all__NOSTR_PUBLIC_KEYs__from_index__admin_identities">get_all__NOSTR_PUBLIC_KEYs__from_index__admin_identities</button><br/>
+  <button id="get_all__NOSTR_PUBLIC_KEYs__from_index__nostr_identities">get_all__NOSTR_PUBLIC_KEYs__from_index__nostr_identities</button><br/>
+  <button id="insert_DNS_NAME__in_index__dns_names">insert_DNS_NAME__in_index__dns_names</button><br/>
+  <button id="showAll">showAll</button>
+
+  <br>
+  <input type="radio" id="option1" name="options" value="show_1D_nodes">
+  <label for="option1">Show 1N Nodes</label><br>
+  <input type="radio" id="option2" name="options" value="show_2D_nodes">
+  <label for="option2">Show 2N Nodes</label><br>
+  <input type="radio" id="option2" name="options" value="show_3D_nodes">
+  <label for="option3">Show 3N Nodes</label><br>
+  <div id="cy"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      // Create the cytoscape instance
+      var cy = window.cy = cytoscape({
+        container: document.getElementById('cy'),
+        elements: mah_elements,
+        style: [
+          // Define styles for different types
+          {
+          selector: 'node',
+          style: {
+            'label': 'data(id)',
+            'background-color': function(ele) {
+              return getColorForType(ele.data('type'));
+            }
+          }
+        },
+
+        ],
+
+        autounselectify: true,
+        boxSelectionEnabled: false,
+        layout: {
+          name: "cola",
+          infinite: true,
+          fit: false
+        }
+      });
+
+      cy.unbind("tapend");
+      cy.bind("tapend", "node", function() {
+        cy.animate({
+          fit: {
+            eles: cy.elements(),
+            padding: 20
+          },
+          center: {
+            eles: cy.elements()
+          }
+        }, {
+          duration: 500
+        });
+      });
+
+      function getColorForType(type) {
+      switch(type) {
+        case 'index':
+          return 'red';
+        case 'key_value_patterns':
+          return 'blue';
+        case 'schema_variables':
+          return 'green';
+        default:
+          return 'gray';
+      }
+
+      
+    }
+
+      // Toggle nodes based on type
+      document.getElementById('type__schema_variables').addEventListener('change', function(){
+        var type1Nodes = cy.nodes('[type="schema_variables"]');
+        if (this.checked) {
+          type1Nodes.show();
+        } else {
+          type1Nodes.hide();
+        }
+      });
+
+      document.getElementById('type__key_value_patterns').addEventListener('change', function(){
+        var type2Nodes = cy.nodes('[type="key_value_patterns"]');
+        if (this.checked) {
+          type2Nodes.show();
+        } else {
+          type2Nodes.hide();
+        }
+      });
+
+      document.getElementById('type__index').addEventListener('change', function(){
+        var type3Nodes = cy.nodes('[type="index"]');
+        if (this.checked) {
+          type3Nodes.show();
+        } else {
+          type3Nodes.hide();
+        }
+      });
+      var type3Nodes = cy.nodes('[type="type3"]');
+      type3Nodes.hide();
+
+
+    document.getElementById('type__index_to_kvp').addEventListener('change', function(){
+        console.log("type__index_to_kvp")
+        var index_to_kvp__edges = cy.edges('[type="index_to_kvp"]');
+        if (this.checked) {
+            index_to_kvp__edges.show();
+        } else {
+            index_to_kvp__edges.hide();
+        }
+    });
+
+
+    document.getElementById('type__kbp_to_schema_variable').addEventListener('change', function(){
+        var index_to_kvp__edges = cy.edges('[type="kbp_to_schema_variable"]');
+        if (this.checked) {
+            index_to_kvp__edges.show();
+        } else {
+            index_to_kvp__edges.hide();
+        }
+    });
+
+
+    // Function to show only nodes and edges in the whitelist
+    function showWhitelist(whitelist) {
+        cy.nodes().forEach(function (ele) {
+            if (!whitelist.includes(ele.id())) {
+                ele.hide();
+            } else {
+                ele.show();
+            }
+        });
+
+        // cy.edges().forEach(function (ele) {
+        //     if (!whitelist.includes(ele.source().id()) || !whitelist.includes(ele.target().id())) {
+        //         ele.hide();
+        //     } else {
+        //         ele.show();
+        //     }
+        // });
+    }
+
+
+    // Function to show all nodes and edges
+    function showAll() {
+        cy.nodes().show();
+        cy.edges().show();
+    }
+
+    function get_all__NOSTR_PUBLIC_KEYs__from_index__admin_identities(){
+        var whitelist = [
+            // Nodes    
+            'dd_index__admin_identities', 
+            'key_value_pattern__admin_npub_key_${NOSTR_PUBLIC_KEY}', 
+            'schema_variable__NOSTR_PUBLIC_KEY'
+        ]
+        showWhitelist(whitelist)
+    }
+
+    document.getElementById('get_all__NOSTR_PUBLIC_KEYs__from_index__admin_identities').addEventListener('click', function(){
+        var whitelist = [
+            // Nodes    
+            'dd_index__admin_identities', 
+            'key_value_pattern__admin_npub_key_${NOSTR_PUBLIC_KEY}', 
+            'schema_variable__NOSTR_PUBLIC_KEY'
+        ]
+        showWhitelist(whitelist)
+    })
+
+    document.getElementById('showAll').addEventListener('click', function(){
+        showAll()
+    })
+
+
+
+    // works
+    // cy.on('dblclick', 'node', function (event) {
+        // var clickedNode = event.target;
+        // var selectedNodes = clickedNode.closedNeighborhood().nodes();
+
+        // console.log(selectedNodes)
+
+        // // Select the nodes found
+        // cy.nodes().hide();
+        // selectedNodes.show()
+    //   });
+
+    // works
+    // cy.on('dblclick', 'node', function (event) {
+    //     var clickedNode = event.target;
+    //     var clickedNodeId = clickedNode.id();
+    //     var hiddenNodes = cy.nodes().filter(function (ele, i) {
+    //       return ele.id(), !clickedNode.edgesWith(ele).empty();
+    //     });
+    //     hiddenNodes.push(clickedNode)
+    //     cy.nodes().hide();
+    //     hiddenNodes.show();
+    //   });
+
+
+
+
+
+    // Initialize variable
+    let selectedOption = 'show_1D_nodes';
+    // Function to update variable when radio button changes
+    function updateVariable() {
+        selectedOption = document.querySelector('input[name="options"]:checked').value;
+        console.log("Selected option:", selectedOption);
+        // You can perform any additional actions here based on the selected option
+    }
+    // Attach event listener to the radio button group
+    document.querySelectorAll('input[name="options"]').forEach(function(radio) {
+        radio.addEventListener('change', updateVariable);
+    });
+
+
+
+
+    cy.on('dblclick', 'node', function (event) {
+        if(selectedOption == "show_1D_nodes"){
+            var clickedNode = event.target;
+            var selectedNodes = clickedNode.closedNeighborhood().nodes();
+            cy.nodes().hide();
+            selectedNodes.show()
+        }
+        if(selectedOption == "show_2D_nodes"){
+            var clickedNode = event.target;
+            var nodesToReturn = new Set(); // Using a Set to ensure uniqueness
+            
+            var dijkstra = cy.elements().dijkstra(clickedNode, function(edge){
+                return 1; // Assuming all edges have equal weight
+            });
+            // Breadth-first search function
+            function bfs(startNode) {
+                var queue = [startNode];
+                while (queue.length > 0) {
+                    var currentNode = queue.shift();
+                    nodesToReturn.add(currentNode);
+                    // Enqueue neighbors of current node
+                    currentNode.neighborhood().nodes().forEach(function(neighbor) {
+                        var distance = dijkstra.distanceTo(neighbor);
+                        if (!nodesToReturn.has(neighbor) && distance <= 2 ) {
+                            queue.push(neighbor);
+                        }
+                    });
+                }
+            }
+            // Perform BFS starting from the clicked node
+            bfs(clickedNode);
+            // Convert Set to array for further processing if needed
+            var nodesArray = Array.from(nodesToReturn);
+            // Do whatever you want with the nodes
+            // Remove nodes that are not in the nodesToReturn set
+            cy.nodes().forEach(function(node) {
+                    if (!nodesToReturn.has(node)) {
+                        node.remove();
+                    }
+                });
+        }
+        if(selectedOption == "show_3D_nodes"){
+            var clickedNode = event.target;
+            var nodesToReturn = new Set(); // Using a Set to ensure uniqueness
+            
+            var dijkstra = cy.elements().dijkstra(clickedNode, function(edge){
+                return 1; // Assuming all edges have equal weight
+            });
+            // Breadth-first search function
+            function bfs(startNode) {
+                var queue = [startNode];
+                while (queue.length > 0) {
+                    var currentNode = queue.shift();
+                    nodesToReturn.add(currentNode);
+                    // Enqueue neighbors of current node
+                    currentNode.neighborhood().nodes().forEach(function(neighbor) {
+                        var distance = dijkstra.distanceTo(neighbor);
+                        if (!nodesToReturn.has(neighbor) && distance <= 4 ) {
+                            queue.push(neighbor);
+                        }
+                    });
+                }
+            }
+            // Perform BFS starting from the clicked node
+            bfs(clickedNode);
+            // Convert Set to array for further processing if needed
+            var nodesArray = Array.from(nodesToReturn);
+            // Do whatever you want with the nodes
+            // Remove nodes that are not in the nodesToReturn set
+            cy.nodes().forEach(function(node) {
+                    if (!nodesToReturn.has(node)) {
+                        node.remove();
+                    }
+                });
+        }
+    })
+
+
+
+    // Works
+    // cy.on('dblclick', 'node', function(event){
+    //     var clickedNode = event.target;
+    //     var nodesToReturn = new Set(); // Using a Set to ensure uniqueness
+        
+    //     var dijkstra = cy.elements().dijkstra(clickedNode, function(edge){
+    //         return 1; // Assuming all edges have equal weight
+    //     });
+
+
+
+
+    //     // Breadth-first search function
+    //     function bfs(startNode) {
+    //         var queue = [startNode];
+            
+    //         while (queue.length > 0) {
+    //             var currentNode = queue.shift();
+    //             nodesToReturn.add(currentNode);
+                
+    //             // Enqueue neighbors of current node
+    //             currentNode.neighborhood().nodes().forEach(function(neighbor) {
+    //                 var distance = dijkstra.distanceTo(neighbor);
+    //                 if (!nodesToReturn.has(neighbor) && distance <= 3 ) {
+    //                     queue.push(neighbor);
+    //                 }
+    //             });
+    //         }
+    //     }
+        
+    //     // Perform BFS starting from the clicked node
+    //     bfs(clickedNode);
+        
+    //     // Convert Set to array for further processing if needed
+    //     var nodesArray = Array.from(nodesToReturn);
+        
+    //     // Do whatever you want with the nodes
+    //     // Remove nodes that are not in the nodesToReturn set
+    //     cy.nodes().forEach(function(node) {
+    //             if (!nodesToReturn.has(node)) {
+    //                 node.remove();
+    //             }
+    //         });
+    // });
+
+
+
+    // Queries
+    // index=admin_identities
+    document.getElementById('get_all__NOSTR_PUBLIC_KEYs__from_index__admin_identities').addEventListener('click', function(){
+        var whitelist = [
+            // Nodes    
+            'dd_index__admin_identities', 
+            'key_value_pattern__admin_npub_key_${NOSTR_PUBLIC_KEY}', 
+            'schema_variable__NOSTR_PUBLIC_KEY'
+        ]
+        showWhitelist(whitelist)
+    })
+
+    // index=nostr_identities
+    document.getElementById('get_all__NOSTR_PUBLIC_KEYs__from_index__nostr_identities').addEventListener('click', function(){
+        var whitelist = [
+            // Nodes    
+            'dd_index__nostr_identities', 
+            "key_value_pattern__user_npub_key_${NOSTR_PUBLIC_KEY}", 
+            'schema_variable__NOSTR_PUBLIC_KEY'
+        ]
+        showWhitelist(whitelist)
+    })
+
+    // index=dns_name
+    document.getElementById('insert_DNS_NAME__in_index__dns_names').addEventListener('click', function(){
+        var whitelist = [
+            // Nodes    
+            'dd_index__dns_names', 
+            'key_value_pattern__all_dns_names',
+            "key_value_pattern__change_log_all_dns_names_json_jq_count", 
+            'key_value_pattern__change_log_all_dns_names_json_jq_index_${LOG_AUTO_INCREMENT}',
+            "key_value_pattern__change_log_public_dns_names_jq_count", 
+            "key_value_pattern__change_log_public_dns_names_jq_index_${LOG_AUTO_INCREMENT}",
+            'dd_index__dns_names__TO__key_value_pattern__default_dns_name',
+            'key_value_pattern__public_dns_names',
+            'schema_variable__LOG_AUTO_INCREMENT'
+
+        ]
+        showWhitelist(whitelist)
+    })
+
+
+    // index=nostr_dot_json_jq_changes
+
+
+    // index=coupons
+
+    // index=nostr_relays
+
+    // index=purchases
+
+    // index=offers
+
+});
+  </script>
+</body>
+</html>
