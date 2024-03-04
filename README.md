@@ -1,5 +1,21 @@
 #### nostr-nip05-server
 
+
+``` bash
+
+rm -rf ./database/db.leveldb
+
+node ./database/levelSchema.js
+
+node ./database/dump.js
+
+node ./database/dump.js > test.ndjson && cat test.ndjson | jq
+
+
+```
+
+
+
 ``` bash
 
 # VALID
@@ -18,8 +34,6 @@ export NOSTR_DNS_NAME=""
 
 export NOSTR_DNS_NAME="dentropic.net"
 
-
-node ./database/levelSchema.js
 ```
 
 

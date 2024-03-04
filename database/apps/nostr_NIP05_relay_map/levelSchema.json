@@ -1,0 +1,54 @@
+{
+    "app_names" : ["#TODO"],
+    "tags" : "nostr",
+    "authors"   : ["dentropy@ddaemon.org"],
+    "schema_variables" : {
+        "IPNS_NAME" : {
+            "Description" : "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+        },
+        "NOSTR_PUBLIC_KEY" : {
+            "Description" : "Just take the npub off the nostr public key"
+        },
+        "LOG_AUTO_INCREMENT" : {
+            "Description" : "Increments with the log going up"
+        },
+        "DNS_NAME" : {
+            "Description" : "A DNS Name, pretty self explanitory"
+        },
+        "NOSTR_INTERNET_IDENTIFIER" : {
+            "Description" : "The thing that looks like an email address"
+        },
+        "NOSTR_NAME_LOCAL_PART" : {
+            "Desciption" : "The local-part of a NOSTR_INTERNET_IDENTIFIER, user part of a the user@domain.name email address like thing"
+        }
+    },
+    "schema" : {
+        "dns_names" : {
+            "key_value_patterns" : [
+                "dns_name_${DNS_NAME}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ]
+        },
+        "NIP05_reverse_lookup" : {
+            "key_value_patterns" : [
+                "NIP05_${DNS_NAME}_${NOSTR_NAME_LOCAL_PART}"
+            ]
+        },
+        "NIP05_internet_identifier" : {
+            "key_value_patterns" : [
+                "NIP05_${NOSTR_INTERNET_IDENTIFIER}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ]
+        },
+        "nostr_public_keys" : {
+            "key_value_patterns" : [
+                "nostr_key_${NOSTR_PUBLIC_KEY}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ]
+        }
+    },
+    "queries" : {}
+}

@@ -1,0 +1,32 @@
+{
+    "app_names" : ["nostr_NIP05_server"],
+    "tags" : "nostr",
+    "authors"   : ["dentropy@ddaemon.org"],
+    "schema_variables" : {
+        "NOSTR_PUBLIC_KEY" : {
+            "Description" : "Just take the npub off the nostr public key"
+        },
+        "LOG_AUTO_INCREMENT" : {
+            "Description" : "Increments with the log going up"
+        }
+    },
+    "schema" : {
+        "#TODO" : {
+            "key_value_patterns" : [
+                "#TODO",
+                "#TODO_${SOME_VARIABLE}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ],
+            "load_defaults" : {
+                "#TODO"  : {
+                    "type" : "json_value",
+                    "version": "0.0.1",
+                    "value" : {
+                        "#TODO" : "#TODO"
+                    }
+                }
+            }
+        }
+    }
+}

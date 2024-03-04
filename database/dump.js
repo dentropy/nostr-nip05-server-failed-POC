@@ -14,8 +14,11 @@ const my_db = dddb;
 
 // Function to iterate through the database
 for await (const [key, value] of my_db.iterator()) {
-    console.log(`\nKey  : ${key}`)
-    console.log(`Value: ${JSON.stringify(value,null, 2)}`)
+    let nd_json = {
+      key  : key,
+      value: value
+    }
+    console.log(JSON.stringify(nd_json))
   }
 
 

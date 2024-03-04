@@ -1,0 +1,58 @@
+{
+    "app_names" : ["root_RBAC"],
+    "tags" : "nostr",
+    "authors"   : ["dentropy@ddaemon.org"],
+    "schema_variables" : {
+        "IPNS_NAME" : {
+            "Description" : "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+        },
+        "NOSTR_PUBLIC_KEY" : {
+            "Description" : "Just take the npub off the nostr public key"
+        },
+        "LOG_AUTO_INCREMENT" : {
+            "Description" : "Increments with the log going up"
+        },
+        "AUTH_APP_NAME" : {
+            "Desciption" : ""
+        },
+        "APP_RULE" : {
+            "Description" : "Remember group permissions like root, and email and fax are also rules!"
+        },
+        "secp256k1_PUBLIC_KEY" : {
+            "Desciption" : "Nostr Public Key, or Bitcoin, you know how it is"
+        }
+    },
+    "schema" : {
+        "app_rules" : {
+            "APP_RULE" : [
+                "rule_name_${APP_RULE}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ]
+        },
+        "auth_apps" : {
+            "key_value_patterns" : [
+                "rule_name_${AUTH_APP_NAME}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ]
+        },
+        "app_rule_auth" : {
+            "key_value_patterns" : [
+                "rule_app_name_${APP_RULE}_${AUTH_APP_NAME}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ]
+        },
+        "app_auth_rule_reverse_lookup" : {
+            "key_value_patterns" : [
+                "app_name_rule_${AUTH_APP_NAME}_${APP_RULE}"
+            ]
+        },
+        "secp256k1_auth_app" : {
+            "key_value_patterns" : [
+                "app_rule_${APP_RULE}_auth_app_${AUTH_APP_NAME}_spec${secp256k1_PUBLIC_KEY}"
+            ]
+        }
+    }
+}

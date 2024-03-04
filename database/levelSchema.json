@@ -1,173 +1,45 @@
 {
-    "app_names" : ["nostr-nip05-server"],
-    "tags" : ["nostr", "nip05", "ddaemon"],
-    "authors"   : ["dentropy@ddaemon.org"],
-    "schema_variables" : {
-        "IPNS_NAME" : {
-            "Description" : "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+    "app_names": [
+        "nostr_NIP05_server"
+    ],
+    "tags": "nostr",
+    "authors": [
+        "dentropy@ddaemon.org"
+    ],
+    "dependencies": [
+        {
+            "name": "RBAC.root_RBAC"
         },
-        "NOSTR_PUBLIC_KEY" : {
-            "Description" : "Just take the npub off the nostr public key"
+        {
+            "name": "RBAC.nostr_RBAC"
         },
-        "DNS_NAME" : {
-            "Description" : "A DNS Name, pretty self explanitory"
+        {
+            "name": "apps.nostr_NIP05_relay_map"
+        }
+    ],
+    "schema_variables": {
+        "NOSTR_PUBLIC_KEY": {
+            "Description": "Just take the npub off the nostr public key"
         },
-        "COUPON_CODE" : {
-            "Desciption" : "Self explanitory"
-        },
-        "PURCHASE_NUM" : {
-            "Description" : "Self explanitory"
-        },
-        "LOG_AUTO_INCREMENT" : {
-            "Description" : "Increments with the log going up"
-        },
-        "COUPON_CLAIM_NUMBER" : {
-            "Description" : "Coupon Claim Number"
+        "LOG_AUTO_INCREMENT": {
+            "Description": "Increments with the log going up"
         }
     },
-    "schema" : {
-        "root" : {
-            "key_value_patterns" : [
-                "namespace_to_ipns",
+    "schema": {
+        "#TODO": {
+            "key_value_patterns": [
+                "#TODO",
+                "#TODO_${SOME_VARIABLE}",
                 "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
-            "load_defaults" : {
-                "namespace_to_ipns"  : {
-                    "type" : "json_value",
+            "load_defaults": {
+                "#TODO": {
+                    "type": "json_value",
                     "version": "0.0.1",
-                    "value" : {
-                        "admin_identities" : "${IPNS_NAME}",
-                        "nostr_identities" : "${IPNS_NAME}",
-                        "dns_names" : "${IPNS_NAME}",
-                        "nostr_dot_json_jq_changes" : "${IPNS_NAME}",
-                        "coupons" : "${IPNS_NAME}",
-                        "offers" : "${IPNS_NAME}",
-                        "nostr_relays" : "${IPNS_NAME}",
-                        "purchases" : "${IPNS_NAME}"
+                    "value": {
+                        "#TODO": "#TODO"
                     }
-                },
-                "change_log_namespace_to_ipns_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "admin_identities" : {
-            "key_value_patterns" : [
-                "admin_npub_key_${NOSTR_PUBLIC_KEY}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "load_defaults" : {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "nostr_identities" : {
-            "key_value_patterns" : [
-                "user_npub_key_${NOSTR_PUBLIC_KEY}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "load_defaults" : {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "dns_names" : {
-            "key_value_patterns" : [
-                "all_dns_names",
-                "public_dns_names",
-                "default_dns_name",
-                "change_log_all_dns_names_json_jq_count",
-                "change_log_all_dns_names_json_jq_index_${LOG_AUTO_INCREMENT}",
-                "change_log_public_dns_names_jq_count",
-                "change_log_public_dns_names_jq_index_${LOG_AUTO_INCREMENT}"
-            ],
-            "load_defaults" : {
-                "change_log_all_dns_names_json_jq_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                },
-                "change_log_public_dns_names_jq_count"   : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "nostr_dot_json_jq_changes" : {
-            "key_value_patterns" : [
-                "nostr_json_${DNS_NAME}",
-                "change_log_${DNS_NAME}_jq_index_${LOG_AUTO_INCREMENT}",
-                "change_log_${DNS_NAME}_jq_count"
-            ],
-            "load_defaults" : {}
-        },
-        "coupons" : {
-            "key_value_patterns" : [
-                "coupon_code_${COUPON_CODE}",
-                "coupon_claimed_${COUPON_CODE}_${COUPON_CLAIM_NUMBER}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "load_defaults" : {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "offers" : {
-            "key_value_patterns" : [
-                "offer_${DNS_NAME}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "load_defaults" : {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "nostr_relays" : {
-            "key_value_patterns" : [
-                "nostr_relay_domain_${DNS_NAME}",
-                "change_log_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "load_defaults" : {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "purchases" : {
-            "key_value_patterns" : [
-                "nostr_relay_domain_${DNS_NAME}",
-                "purchase_${PURCHASE_NUM}",
-                "change_log_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "load_defaults" : {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
                 }
             }
         }
