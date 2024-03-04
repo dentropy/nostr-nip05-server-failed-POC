@@ -1,5 +1,5 @@
 {
-    "app_names" : ["#TODO"],
+    "app_names" : ["nostr_NIP05_relay_map"],
     "tags" : "nostr",
     "authors"   : ["dentropy@ddaemon.org"],
     "schema_variables" : {

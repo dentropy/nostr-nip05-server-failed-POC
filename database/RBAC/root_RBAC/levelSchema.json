@@ -28,21 +28,42 @@
                 "rule_name_${APP_RULE}",
                 "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
-            ]
+            ],
+            "load_defaults" : {
+                "change_log_count" : {
+                    "type" : "json_value",
+                    "version": "0.0.1",
+                    "value" : { "count" : 0 }
+                }
+            }
         },
         "auth_apps" : {
             "key_value_patterns" : [
                 "rule_name_${AUTH_APP_NAME}",
                 "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
-            ]
+            ],
+            "load_defaults" : {
+                "change_log_count" : {
+                    "type" : "json_value",
+                    "version": "0.0.1",
+                    "value" : { "count" : 0 }
+                }
+            }
         },
         "app_rule_auth" : {
             "key_value_patterns" : [
                 "rule_app_name_${APP_RULE}_${AUTH_APP_NAME}",
                 "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
-            ]
+            ],
+            "load_defaults" : {
+                "change_log_count" : {
+                    "type" : "json_value",
+                    "version": "0.0.1",
+                    "value" : { "count" : 0 }
+                }
+            }
         },
         "app_auth_rule_reverse_lookup" : {
             "key_value_patterns" : [
@@ -51,8 +72,17 @@
         },
         "secp256k1_auth_app" : {
             "key_value_patterns" : [
-                "app_rule_${APP_RULE}_auth_app_${AUTH_APP_NAME}_spec${secp256k1_PUBLIC_KEY}"
-            ]
+                "app_rule_${APP_RULE}_auth_app_${AUTH_APP_NAME}_spec${secp256k1_PUBLIC_KEY}",
+                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "change_log_count"
+            ],
+            "load_defaults" : {
+                "change_log_count" : {
+                    "type" : "json_value",
+                    "version": "0.0.1",
+                    "value" : { "count" : 0 }
+                }
+            }
         }
     }
 }

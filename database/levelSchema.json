@@ -11,9 +11,6 @@
             "name": "RBAC.root_RBAC"
         },
         {
-            "name": "RBAC.nostr_RBAC"
-        },
-        {
             "name": "apps.nostr_NIP05_relay_map"
         }
     ],
@@ -26,20 +23,17 @@
         }
     },
     "schema": {
-        "#TODO": {
+        "logs": {
             "key_value_patterns": [
-                "#TODO",
-                "#TODO_${SOME_VARIABLE}",
+                "logs_${SOME_VARIABLE}",
                 "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
             "load_defaults": {
-                "#TODO": {
-                    "type": "json_value",
+                "change_log_count" : {
+                    "type" : "json_value",
                     "version": "0.0.1",
-                    "value": {
-                        "#TODO": "#TODO"
-                    }
+                    "value" : { "count" : 0 }
                 }
             }
         }
