@@ -48,9 +48,57 @@ async function setup(){
     else {
         let dns_name = process.env.NOSTR_DNS_NAME.toLowerCase();
         console.log(`dns_name = ${dns_name}`)
-        // #TODO
+        let select_result = await db.prepare(`
+            SELECT count(*) as count FROM dns_names_t WHERE dns_name = ?`
+            ).get(dns_name);
+        if( select_result.count == 0 ){
+            let inset_values = {
+                dns_name : dns_name,
+                share : 1,
+                is_configured : 1
+            }
+            const insert_statement = await db.prepare(`
+                INSERT INTO dns_names_t 
+                    (
+                        dns_name,
+                        share,
+                        is_configured) 
+                VALUES 
+                    (
+                        @dns_name, 
+                        @share,
+                        @is_configured
+                    )`);
+            await insert_statement.run(inset_values);
+        }
     }
 
+    // Add in inital data to nostr_jq_json_changes_t
+    let query  = await db.prepare(`
+        SELECT COUNT(*) as count FROM nostr_jq_json_changes_t;
+    `).all();
+    if (query[0].count == 0) {
+        let jq_command = '{"names":{},"relays":{}}'
+        let resulting_raw_json = await jq.run('.', jq_command, { input: 'string' })
+        let inset_values = {
+            jq_command : jq_command,
+            resulting_raw_json : resulting_raw_json
+        }
+        const insert_statement = db.prepare(`
+            INSERT INTO nostr_jq_json_changes_t 
+                (
+                    jq_command,
+                    resulting_raw_json
+                ) 
+            VALUES 
+                (
+                    @jq_command,
+                    @resulting_raw_json
+                )`
+        );
+        insert_statement.run(inset_values);
+    }
+    // jq.run('.', '{ foo: "bar" }', { input: 'string' }).
 }
 setup()
 
@@ -60,7 +108,10 @@ app.get('/', (req, res) => {
 
 
 app.get('/.well-known/nostr.json', async (req, res) => {
-    res.json( JSON.parse( {"Note" : "Work in progress"} ));
+    let select_result = await db.prepare(`
+        SELECT resulting_raw_json FROM nostr_jq_json_changes_t ORDER BY jq_change_id DESC LIMIT 1`
+    ).get()
+    res.json( JSON.parse( select_result.resulting_raw_json ));
 });
 
 app.post('/admin', async function (req, res) {
