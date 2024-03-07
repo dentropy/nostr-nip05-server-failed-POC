@@ -52,7 +52,6 @@ export async function get_query(dddb, db_schema, query_object){
     const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
     const app_data =  dddb.sublevel('app_data', { valueEncoding: 'json' })
     let app_root = await CID_store.get(app_root_CID["/"])
-    let app_sublevel = app_data.sublevel(app_root[query_object.name], { valueEncoding: 'json' })
 
 
     if(!Object.keys(query_object).includes("name")){
@@ -68,7 +67,31 @@ export async function get_query(dddb, db_schema, query_object){
         return {"error" : `App ${query_object.name} not corectly installed \n
             ${JSON.stringify(app_root)}`}
     }
+    let app_sublevel = app_data.sublevel(app_root[query_object.name], { valueEncoding: 'json' })
 
     let key = db_schema.schema[query_object.name].key_value_patterns[0].replace(/\${(.*?)}/g, (match, key) => query_object.data.variables[key] || match)
     return await CID_store.get( (await app_sublevel.get(key) )["/"])
+}
+
+
+export async function get_index(dddb, app_name, key_value_pattern){
+
+    let app_root_CID = await dddb.get('root')
+    const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
+    const app_data =  dddb.sublevel('app_data', { valueEncoding: 'json' })
+    let app_root = await CID_store.get(app_root_CID["/"])
+
+
+    if( !Object.keys(app_root).includes(app_name)){
+        return {"error" : `App ${app_name} not corectly installed \n
+            ${JSON.stringify(app_root)}`}
+    }
+    let app_sublevel = app_data.sublevel(app_root[app_name], { valueEncoding: 'json' })
+
+
+    let CIDs = []
+    for await (const [key, value] of app_sublevel.iterator({ gt: key_value_pattern })) {
+        CIDs.push(  await CID_store.get(value["/"])  )
+    }
+    return CIDs
 }
