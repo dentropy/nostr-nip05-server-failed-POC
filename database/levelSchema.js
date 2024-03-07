@@ -10,23 +10,22 @@ import { sha256 } from 'multiformats/hashes/sha2'
 
 import { code } from 'multiformats/codecs/json'
 
-const db = new Level('./database/db.leveldb', { valueEncoding: 'json' })
+// const db = new Level('./database/db.leveldb', { valueEncoding: 'json' })
 
 // Check if app directory for apps
 
-async function main(){
-    const dddb = db.sublevel('ddaemon', { valueEncoding: 'json' })
+export async function level_schema(dddb){
     try {
         const value = await dddb.get('root')
         console.log("\ndddb.get('root')")
         console.log(value)
         console.log("Validating data now")
-        console.log(await validate_schema(dddb))
+        return await validate_schema(dddb)
     } catch (error) {
         console.log("\n\n")
         console.log("error.status")
         console.log(error.status)
-        initialize_app_data(dddb)
+        return await initialize_app_data(dddb)
     }
 }
 
@@ -152,22 +151,34 @@ async function initialize_app_data(dddb){
     var cid_value = await CID.create(1, code, await sha256.digest(encode(schema_ipns_lookup)))
     await CID_store.put(cid_value, schema_ipns_lookup)
     root_app_data.put("config", cid_value)
+    return db_schema
 }
 
-async function validate_schema(dddb){
+async function validate_schema(){
+    let db_schema = JSON.parse(await fs.readFileSync('./database/levelSchema.json'))
+    // let schema_ipns_lookup = {}
+    for (const DD_dependency of db_schema.dependencies){
+        let levelSchema = await JSON.parse( fs.readFileSync( "./database/" + DD_dependency.name.split('.').join('/') + "/levelSchema.json" ) )
+        for (const DD_index of Object.keys(levelSchema.schema) ){
+            db_schema.schema[DD_dependency.name + "." + DD_index] = levelSchema.schema[DD_index]
+        }
+    }
+
+
+    // TODO
     // Check if app is installed
-        // Check if app name is in there
-        // get ipns name of the app
+    // Check if app name is in there
+    // get ipns name of the app
     // Check if IPNS name is in pki
     // Get the root of the application with its ipns names
     // Check if we control all those IPNS names
     // Check the default values of the application
+
+
+    return db_schema
 }
 
 
 // Load data for app to boot
     // admin nostr key
     // dns name
-
-
-main()

@@ -34,6 +34,7 @@ async function setup(){
         let testme = nip19.decode(process.env.NOSTR_ADMIN_PUBLIC_KEY)
         try {
             getPublicKey(testme.data)
+            db.
         } catch (error) {
             console.log("\nInvalid npub key stored in $NOSTR_ADMIN_PUBLIC_KEY environment variable")
             process.exit(1);
