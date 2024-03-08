@@ -23,19 +23,46 @@
         }
     },
     "schema": {
-        "logs": {
+        "nostr_json": {
             "key_value_patterns": [
-                "logs_${SOME_VARIABLE}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "load_defaults": {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        }
-    }
+                "nostr_${DNS_NAME}"
+            ]
+        ,
+        "upsert_json_schema" : {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+              "variables": {
+                "type": "object",
+                "properties": {
+                  "DNS_NAME": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "DNS_NAME"
+                ]
+              },
+              "value": {
+                "type": "object",
+                "properties": {
+                  "names" : {
+                    "type" : "object"
+                  },
+                  "relays": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "relays",
+                  "names"
+                ]
+              }
+            },
+            "required": [
+              "variables",
+              "value"
+            ]
+          }
+    }}
 }

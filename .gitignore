@@ -4,3 +4,4 @@ node_modules
 *leveldb
 test.json
 test.ndjson
+*ndjson

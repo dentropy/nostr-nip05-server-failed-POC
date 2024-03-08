@@ -46,6 +46,7 @@ export async function upsert_query(dddb, db_schema, query_object){
             query_object.data
         )
     }
+    return true
 
 }
 
@@ -94,12 +95,18 @@ export async function get_index(dddb, app_name, key_value_pattern){
         return {"error" : `App ${app_name} not corectly installed \n
             ${JSON.stringify(app_root)}`}
     }
+
+    console.log("app_root[app_name]")
+    console.log(app_root[app_name])
+
+
     let app_sublevel = app_data.sublevel(app_root[app_name], { valueEncoding: 'json' })
 
 
     let results = {}
-    for await (const [key, value] of app_sublevel.iterator({ gt: key_value_pattern })) {
-        results[key] = value
+    for await (const [key, value] of app_sublevel.iterator({ gte: key_value_pattern })) {
+        results[key] = value // await CID_store.get(value["/"])
     }
     return results
+
 }

@@ -13,6 +13,8 @@ export async function upsert_using_key_value_patterns(
     input_object
 )
 {
+    console.log("key_value_patterns")
+    console.log(key_value_patterns)
 
     // Get all the variables we need from key_value_patterns
     let key_tracker = {} 
@@ -24,6 +26,9 @@ export async function upsert_using_key_value_patterns(
         }
     }
 
+    console.log("key_tracker")
+    console.log(key_tracker)
+
 
     // Check if input_object.variables contains all the correct variables
     if(key_tracker.hasOwnProperty("LOG_AUTO_INCREMENT")){
@@ -33,12 +38,20 @@ export async function upsert_using_key_value_patterns(
     key_tracker_list.sort((a, b) => a - b);
     let variables_list = Object.keys(input_object.variables)
     variables_list.sort((a, b) => a - b);
+
+
+    console.log("variables_list")
+    console.log(variables_list)
+
+
     if (key_tracker_list.length !== variables_list.length) {
         return {"error" : "input_object.variables list length"};
     }
-    if( ! ( key_tracker_list.every((value, index) => value === variables_list[index]) )){
-        return {"error" : `input_object.variables do not match ${JSON.stringify(Object.keys(key_tracker))}`}
-    }
+    // if( ! ( key_tracker_list.every((value, index) => value === variables_list[index]) )){
+    //     return {"error" : `input_object.variables do not match ${JSON.stringify(Object.keys(key_tracker))}`}
+    // }
+
+    console.log("Still chugging along")
     
 
     // Substitute in variables we want to key_value_patterns
@@ -46,12 +59,24 @@ export async function upsert_using_key_value_patterns(
     for (const temp_kv of key_value_patterns){
         substituted_key_value_patterns.push(temp_kv.replace(/\${(.*?)}/g, (match, key) => input_object.variables[key] || match))
     }
+
+    console.log("substituted_key_value_patterns")
+    console.log(substituted_key_value_patterns)
     
 
     // Upsert LevelDB making sure to log the change
     for(const temp_kv of substituted_key_value_patterns){
         var cid_value = CID.create(1, code, await sha256.digest(encode( input_object.value )))
+
+        console.log("input_object.value")
+        console.log(input_object.value)
+        console.log("cid_value")
+        console.log(cid_value.toString())
+
         await CID_store.put(cid_value.toString(), input_object.value)
+        let CID_TEST = await CID_store.get(cid_value.toString())
+        console.log("CID_TEST")
+        console.log(CID_TEST)
         try{
             let old_data = await DD_index_data_store.get(temp_kv)
             try {
@@ -102,9 +127,16 @@ export async function upsert_using_key_value_patterns_and_JSONSchema(
 )
 {
     // Check input_object.data valiates with JSONSchema_for_validation, otherwise return error
+    console.log("CHECKME")
+    console.log(JSON.stringify(JSONSchema_for_validation, null, 2))
+    console.log(JSON.stringify(input_object, null, 2))
+
     const ajv = new Ajv()
     const JSONSchema_validator = ajv.compile(JSONSchema_for_validation)
     const JSONSchema_test = JSONSchema_validator(input_object)
+
+    console.log("JSONSchema_test")
+    console.log(JSONSchema_test)
     if(JSONSchema_test){
         return await upsert_using_key_value_patterns(
             CID_store,

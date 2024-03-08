@@ -2,6 +2,8 @@
 
 http://localhost:8081/appnames
 
+http://localhost:8081/.well-known/nostr.json
+
 ``` bash
 
 rm -rf ./database/db.leveldb
@@ -10,7 +12,7 @@ node ./database/levelSchema.js
 
 node ./database/dump.js
 
-node ./database/dump.js > test.ndjson && cat test.ndjson | jq
+node ./database/dump.js > test.ndjson && jq '.' test.ndjson > test2.ndjson
 
 
 ```
@@ -47,6 +49,8 @@ export NOSTR_DNS_NAME="dentropic.net"
         "app_key": "ipfs://${IPNS_NAME}",
         "query_object" : {
             "name" : "",
+            "type" : "",
+            "key_value_pattern" : "",
             "data" : {
                 "variables" {
                     "$VARIABLE_NAME" : "STRING"

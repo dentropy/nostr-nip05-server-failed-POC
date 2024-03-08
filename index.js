@@ -2,7 +2,7 @@ import express from 'express';
 import { Level } from 'level';
 import { level_schema } from "./database/levelSchema.js";
 import { get_index, get_query, upsert_query } from "./database/db.js";
-
+import { upsert_using_key_value_patterns_and_JSONSchema } from './database/queryLogic.js';
 // Nostr specific imports
 import * as nip19 from 'nostr-tools/nip19';
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure';
@@ -18,6 +18,8 @@ const level_db = new Level('./database/db.leveldb', { valueEncoding: 'json' })
 const dddb = level_db.sublevel('ddaemon', { valueEncoding: 'json' })
 let db_schema = null;
 let app_key = null;
+let app_data = null;
+let CID_store = null;
 async function setup(dddb){
     db_schema = await level_schema(dddb)
     // Check for Nostr public key to put in admin_t table
@@ -134,7 +136,14 @@ app.get('/', (req, res) => {
 
 
 app.get('/.well-known/nostr.json', async (req, res) => {
-    res.json( {"Note" : "Work in progress"});
+    const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
+    let get_nostr_dot_json = await get_index(
+        dddb, 
+        "nostr_json", 
+        `nostr_`
+    )
+    get_nostr_dot_json = await CID_store.get(get_nostr_dot_json[Object.keys(get_nostr_dot_json)[0]]["/"])
+    res.json( get_nostr_dot_json);
 });
 
 app.get("/appnames", async function (req, res) {
@@ -193,6 +202,75 @@ app.post("/napi", async function (req, res) {
             let test_enabled = await CID_store.get(query_roles[tmp_role]["/"])
             if(test_enabled.enabled == true){
                 roles.push( tmp_role.slice(`spec_${req.body.pubkey}_app_rule_`.length) )
+            }
+        }
+    }
+    if(command_JSON.query_object.name == "apps.nostr_NIP05_relay_map.NIP05_internet_identifier"){
+        if(command_JSON.query_type == "upsert"){
+            if(roles.includes("root")){
+                console.log("Object.keys")
+                console.log(db_schema)
+                console.log(db_schema.schema['apps.nostr_NIP05_relay_map.NIP05_internet_identifier'])
+                let current_app_store = app_data.sublevel( app_root["apps.nostr_NIP05_relay_map.NIP05_internet_identifier"], { valueEncoding: 'json' }) 
+                let query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    CID_store,
+                    current_app_store,
+                    db_schema.schema['apps.nostr_NIP05_relay_map.NIP05_internet_identifier'].key_value_patterns,
+                    command_JSON.query_object.data,
+                    db_schema.schema['apps.nostr_NIP05_relay_map.NIP05_internet_identifier'].upsert_json_schema)
+                // Pull out the domain name
+                let tmp_domain_name = command_JSON.query_object.data.variables.DNS_NAME
+                // Grab all records
+
+                let NIP05_index = await get_index(dddb, 'apps.nostr_NIP05_relay_map.NIP05_internet_identifier', "nip05_dns_first_")
+                // Create nostr.json
+                // Get domain name
+                console.log("NIP05_index")
+                console.log(NIP05_index)
+                let nostr_dot_json = {
+                    "names" : {},
+                    "relays" : {}
+                }
+                for(const nip05_dns of Object.keys(NIP05_index)){
+                    if(nip05_dns.includes("nip05_dns_first_")){
+                        let CID_data = await CID_store.get( NIP05_index[nip05_dns]["/"])
+                        console.log(CID_data)
+                        nostr_dot_json.names[CID_data.NOSTR_NAME_LOCAL_PART] = JSON.parse(JSON.stringify(CID_data.NOSTR_PUBLIC_KEY))
+                        nostr_dot_json.relays[CID_data.NOSTR_PUBLIC_KEY] = JSON.parse(JSON.stringify(CID_data.relays))
+                    }
+                }
+                console.log("nostr_dot_json")
+                console.log(nostr_dot_json)
+                console.log(JSON.stringify(nostr_dot_json, null, 2))
+                // Get all accounts with domain name
+                // Save to nostr_json
+
+                current_app_store = app_data.sublevel( app_root["nostr_json"], { valueEncoding: 'json' }) 
+                query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    CID_store,
+                    current_app_store,
+                    db_schema.schema["nostr_json"].key_value_patterns,
+                    {
+                        variables : {
+                            DNS_NAME : tmp_domain_name
+                        },
+                        value : nostr_dot_json
+                    },
+                    db_schema.schema["nostr_json"].upsert_json_schema
+                    )
+                if(query_result == true){
+                    res.send({"status" : "success", "description" : "upsert_query on index apps.nostr_NIP05_relay_map.nostr_public_key SUCCESS"})
+                    return true
+                } else {
+                    res.send({"status" : "error", "description" : "upsert_query on index apps.nostr_NIP05_relay_map.nostr_public_key failed", "data" : query_result})
+                    return true
+                }
+            } else {
+                if(roles.includes("secp256k1_key") ){ // && req.body.pubkey == 
+                    // Check if public key is in database for a domain
+                    // Check the DNS name they are trying to update
+                    // Perform the update
+                }
             }
         }
     }

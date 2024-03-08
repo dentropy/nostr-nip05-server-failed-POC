@@ -1,168 +1,184 @@
 {
-    "app_names" : ["nostr_NIP05_relay_map"],
-    "tags" : "nostr",
-    "authors"   : ["dentropy@ddaemon.org"],
-    "schema_variables" : {
-        "IPNS_NAME" : {
-            "Description" : "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
-        },
-        "NOSTR_PUBLIC_KEY" : {
-            "Description" : "Just take the npub off the nostr public key"
-        },
-        "LOG_AUTO_INCREMENT" : {
-            "Description" : "Increments with the log going up"
-        },
-        "DNS_NAME" : {
-            "Description" : "A DNS Name, pretty self explanitory"
-        },
-        "NOSTR_INTERNET_IDENTIFIER" : {
-            "Description" : "The thing that looks like an email address"
-        },
-        "NOSTR_NAME_LOCAL_PART" : {
-            "Desciption" : "The local-part of a NOSTR_INTERNET_IDENTIFIER, user part of a the user@domain.name email address like thing"
-        }
+  "app_names": [
+    "nostr_NIP05_relay_map"
+  ],
+  "tags": "nostr",
+  "authors": [
+    "dentropy@ddaemon.org"
+  ],
+  "schema_variables": {
+    "IPNS_NAME": {
+      "Description": "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
     },
-    "schema" : {
-        "dns_names" : {
-            "key_value_patterns" : [
-                "dns_name_${DNS_NAME}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "upsert_json_schema" : {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {
-                  "variables": {
-                    "type": "object",
-                    "properties": {
-                        "DNS_NAME": {
-                          "type": "string"
-                        }
-                    },
-                    "required": ["DNS_NAME"]
-                  },
-                  "value": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": ["status"]
-                  }
-                },
-                "required": ["variables", "value"]
-            },
-            "load_defaults": {
-                "change_log_count" : {
-                    "type" : "json_value",
-                    "version": "0.0.1",
-                    "value" : { "count" : 0 }
-                }
-            }
-        },
-        "NIP05_reverse_lookup" : {
-            "key_value_patterns" : [
-                "NIP05_${DNS_NAME}_${NOSTR_NAME_LOCAL_PART}"
-            ],
-            "upsert_json_schema" : {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {
-                  "upsert_keys": {
-                    "type": "object",
-                    "properties": {
-                        "DNS_NAME": {
-                          "type": "string"
-                        },
-                        "NOSTR_NAME_LOCAL_PART" : {
-                          "type" : "string"
-                        }
-                    },
-                    "required": ["DNS_NAME", "NOSTR_NAME_LOCAL_PART"]
-                  },
-                  "upsert_value": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": ["status"]
-                  }
-                },
-                "required": ["upsert_keys", "upsert_value"]
-            }
-        },
-        "NIP05_internet_identifier" : {
-            "key_value_patterns" : [
-                "NIP05_${NOSTR_NAME_LOCAL_PART}@${DNS_NAME}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "upsert_json_schema" : {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {
-                  "upsert_keys": {
-                    "type": "object",
-                    "properties": {
-                        "DNS_NAME": {
-                          "type": "string"
-                        },
-                        "NOSTR_NAME_LOCAL_PART" : {
-                          "type" : "string"
-                        }
-                    },
-                    "required": ["DNS_NAME", "NOSTR_NAME_LOCAL_PART"]
-                  },
-                  "upsert_value": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": ["status"]
-                  }
-                },
-                "required": ["upsert_keys", "upsert_value"]
-            }
-        },
-        "nostr_public_keys" : {
-            "key_value_patterns" : [
-                "nostr_key_${NOSTR_PUBLIC_KEY}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
-                "change_log_count"
-            ],
-            "upsert_json_schema" : {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {
-                  "upsert_keys": {
-                    "type": "object",
-                    "properties": {
-                        "NOSTR_PUBLIC_KEY": {
-                          "type": "string"
-                        }
-                    },
-                    "required": ["NOSTR_PUBLIC_KEY"]
-                  },
-                  "upsert_value": {
-                    "type": "array",
-                    "items" : {
-                        "properties": {
-                            "NOSTR_INTERNET_IDENTIFIER": {
-                                "type": "string"
-                            }
-                        },
-                        "required": ["status"]
-                    }
-                  }
-                },
-                "required": ["upsert_keys", "upsert_value"]
-            }
-        }
+    "NOSTR_PUBLIC_KEY": {
+      "Description": "Just take the npub off the nostr public key"
+    },
+    "LOG_AUTO_INCREMENT": {
+      "Description": "Increments with the log going up"
+    },
+    "DNS_NAME": {
+      "Description": "A DNS Name, pretty self explanitory"
+    },
+    "NOSTR_INTERNET_IDENTIFIER": {
+      "Description": "The thing that looks like an email address"
+    },
+    "NOSTR_NAME_LOCAL_PART": {
+      "Desciption": "The local-part of a NOSTR_INTERNET_IDENTIFIER, user part of a the user@domain.name email address like thing"
     }
+  },
+  "schema": {
+    "dns_names": {
+      "key_value_patterns": [
+        "dns_name_${DNS_NAME}",
+        "change_log_index_${LOG_AUTO_INCREMENT}",
+        "change_log_count"
+      ],
+      "upsert_json_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "properties": {
+              "DNS_NAME": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "DNS_NAME"
+            ]
+          },
+          "value": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "variables",
+          "value"
+        ]
+      },
+      "load_defaults": {
+        "change_log_count": {
+          "type": "json_value",
+          "version": "0.0.1",
+          "value": {
+            "count": 0
+          }
+        }
+      }
+    },
+    "NIP05_internet_identifier": {
+      "key_value_patterns": [
+        "NIP05_internet_identifier_${NOSTR_NAME_LOCAL_PART}@${DNS_NAME}",
+        "NIP05_dns_first_${DNS_NAME}_${NOSTR_NAME_LOCAL_PART}",
+        "NIP05_public_key_${NOSTR_PUBLIC_KEY}_${NOSTR_NAME_LOCAL_PART}@${DNS_NAME}",
+        "change_log_index_${LOG_AUTO_INCREMENT}",
+        "change_log_count"
+      ],
+      "upsert_json_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "properties": {
+              "DNS_NAME": {
+                "type": "string"
+              },
+              "NOSTR_NAME_LOCAL_PART": {
+                "type": "string"
+              },
+              "NOSTR_PUBLIC_KEY": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "DNS_NAME",
+              "NOSTR_NAME_LOCAL_PART",
+              "NOSTR_PUBLIC_KEY"
+            ]
+          },
+          "value": {
+            "type": "object",
+            "properties": {
+              "DNS_NAME": {
+                "type": "string"
+              },
+              "NOSTR_NAME_LOCAL_PART": {
+                "type": "string"
+              },
+              "NOSTR_PUBLIC_KEY": {
+                "type": "string"
+              },
+              "relays": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "DNS_NAME",
+              "NOSTR_NAME_LOCAL_PART",
+              "NOSTR_PUBLIC_KEY",
+              "relays"
+            ]
+          }
+        },
+        "required": [
+          "variables",
+          "value"
+        ]
+      }
+    },
+    "nostr_public_keys": {
+      "key_value_patterns": [
+        "nostr_key_${NOSTR_PUBLIC_KEY}",
+        "change_log_index_${LOG_AUTO_INCREMENT}",
+        "change_log_count"
+      ],
+      "upsert_json_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "upsert_keys": {
+            "type": "object",
+            "properties": {
+              "NOSTR_PUBLIC_KEY": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "NOSTR_PUBLIC_KEY"
+            ]
+          },
+          "upsert_value": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "NOSTR_INTERNET_IDENTIFIER": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            }
+          }
+        },
+        "required": [
+          "upsert_keys",
+          "upsert_value"
+        ]
+      }
+    }
+  }
 }
