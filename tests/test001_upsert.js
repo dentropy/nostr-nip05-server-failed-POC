@@ -1,6 +1,6 @@
 import { Level } from 'level';
-import { level_schema } from "./database/levelSchema.js";
-import { get_index } from "./database/db.js";
+import { level_schema } from "../database/levelSchema.js";
+import { upsert_query } from "../database/db.js";
 
 
 
@@ -12,7 +12,7 @@ async function main(){
     // console.log(JSON.stringify(db_schema, null, 2))
     
     let query_object = {
-        "name" : "apps.nostr_NIP05_relay_map.dns_names.dns_names",
+        "name" : "apps.nostr_NIP05_relay_map.dns_names",
         "data" : {
             "variables" : {
                 DNS_NAME : "example.tld"
@@ -23,7 +23,7 @@ async function main(){
             }
         }
     }
-    let query_result = await get_index(dddb, "apps.nostr_NIP05_relay_map.dns_names", "dns_name_")
+    let query_result = await upsert_query(dddb, db_schema, query_object)
 
     console.log("query_result")
     console.log(query_result)

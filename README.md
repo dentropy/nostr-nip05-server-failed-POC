@@ -1,5 +1,6 @@
 #### nostr-nip05-server
 
+http://localhost:8081/appnames
 
 ``` bash
 
@@ -19,7 +20,7 @@ node ./database/dump.js > test.ndjson && cat test.ndjson | jq
 ``` bash
 
 # VALID
-export NOSTR_ADMIN_PUBLIC_KEY="npub1ek36rza32zjc8pec8daz6veyywv55xtemzaxr0saymd04a4r66eqpxphdl"
+export NOSTR_ADMIN_PUBLIC_KEY="npub15kpvwpk66wns84kqyywuyhntkt9ujzqua47z4katjy2shyzkgknsejdaas"
 
 # INVALID
 export NOSTR_ADMIN_PUBLIC_KEY="npub000000"
@@ -35,6 +36,31 @@ export NOSTR_DNS_NAME=""
 export NOSTR_DNS_NAME="dentropic.net"
 
 ```
+
+## napi
+
+``` json
+
+{
+    "DD" : {
+        "app_name" : "nostr_NIP05_server",
+        "app_key": "ipfs://${IPNS_NAME}",
+        "query_object" : {
+            "name" : "",
+            "data" : {
+                "variables" {
+                    "$VARIABLE_NAME" : "STRING"
+                },
+                "value" : {
+                    "$VALUE_001" : true
+                }
+            }
+        }
+    }
+}
+
+```
+
 
 
 #### Reminders

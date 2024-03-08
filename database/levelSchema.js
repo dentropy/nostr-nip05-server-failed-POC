@@ -10,9 +10,17 @@ import { sha256 } from 'multiformats/hashes/sha2'
 
 import { code } from 'multiformats/codecs/json'
 
-// const db = new Level('./database/db.leveldb', { valueEncoding: 'json' })
-
-// Check if app directory for apps
+async function generate_and_store_IPNS_keys(pki_store){
+    const iseed = randomBytes(32);
+    const ikeys = await ipns(iseed);
+    var value_to_encode = {
+        privateKey : ikeys.privateKey,
+        publicKey  : ikeys.publicKey
+    }
+    await pki_store.put(`public_key_${ikeys.base32}`, value_to_encode)
+    console.log(`CREATING IPNS NAME ${ikeys.base32}`)
+    return ikeys.base32
+}
 
 export async function level_schema(dddb){
     try {
@@ -27,18 +35,6 @@ export async function level_schema(dddb){
         console.log(error.status)
         return await initialize_app_data(dddb)
     }
-}
-
-async function generate_and_store_IPNS_keys(pki_store){
-    const iseed = randomBytes(32);
-    const ikeys = await ipns(iseed);
-    var value_to_encode = {
-        privateKey : ikeys.privateKey,
-        publicKey  : ikeys.publicKey
-    }
-    await pki_store.put(`public_key_${ikeys.base32}`, value_to_encode)
-    console.log(`CREATING IPNS NAME ${ikeys.base32}`)
-    return ikeys.base32
 }
 
 // async function configure_app(PKI_db, app_data_db, CID_db, db_schema, schema_prefix){
@@ -76,20 +72,20 @@ async function generate_and_store_IPNS_keys(pki_store){
     // Create a ipns name for each dd_index, saving them in the pki, also registering them in the root app-data index
     // Load all default data
 async function initialize_app_data(dddb){
-
-    await dddb.put('root', {
-        initialized : true,
-        app_ipns_lookup : {}
-    })
     
 
     // Store it in pki
     const PKI_store = dddb.sublevel('PKI', { valueEncoding: 'json' })
     const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
-        
+    let root_IPNS = (await generate_and_store_IPNS_keys(PKI_store)).toString()
+    await dddb.put("root", root_IPNS)
     // Configure app data directory
     const app_data =  dddb.sublevel('app_data', { valueEncoding: 'json' })
-
+    const app_root_data = app_data.sublevel((await root_IPNS).toString(), { valueEncoding: 'json' })
+    await app_root_data.put('root',     {
+        initialized : true,
+        app_ipns_lookup : {}
+    })
 
     // Load in all the schemas even from dependencies
     let db_schema = JSON.parse(await fs.readFileSync('./database/levelSchema.json'))
@@ -140,11 +136,11 @@ async function initialize_app_data(dddb){
     }
 
     // Store schema_ipns_lookup
-    let apps_root = await dddb.get('root')
+    let apps_root = await app_root_data.get('root')
     apps_root.app_ipns_lookup[db_schema.app_names[0]] = await generate_and_store_IPNS_keys(PKI_store, CID_store)
     var cid_value = await CID.create(1, code, await sha256.digest(encode(schema_ipns_lookup)))
     await CID_store.put(cid_value, schema_ipns_lookup)
-    await dddb.put('root', cid_value)
+    await app_root_data.put('root', cid_value)
 
 
     const root_app_data = await app_data.sublevel(apps_root.app_ipns_lookup[db_schema.app_names[0]] , { valueEncoding: 'json' })

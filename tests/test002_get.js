@@ -1,7 +1,6 @@
 import { Level } from 'level';
-import { level_schema } from "./database/levelSchema.js";
-import { upsert_query } from "./database/db.js";
-
+import { get_query } from "../database/db.js";
+import { level_schema } from "../database/levelSchema.js";
 
 
 async function main(){
@@ -23,7 +22,7 @@ async function main(){
             }
         }
     }
-    let query_result = await upsert_query(dddb, db_schema, query_object)
+    let query_result = await get_query(dddb, db_schema, query_object)
 
     console.log("query_result")
     console.log(query_result)

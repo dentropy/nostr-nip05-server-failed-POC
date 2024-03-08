@@ -42,60 +42,31 @@
                     }
                 }
             },
-            "queries": [
-                {
-                    "insert_rule": {
-                        "JSONSchema": {
-                            "$schema": "http://json-schema.org/draft-07/schema#",
-                            "type": "object",
-                            "properties": {
-                                "rule_name": {
-                                    "type": "string"
-                                },
-                                "rule_state": {
-                                    "type": "boolean"
-                                }
-                            },
-                            "required": [
-                                "rule_name",
-                                "rule_state"
-                            ]
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "APP_RULE": {
+                          "type": "string"
                         }
                     },
-                    "update_rule": {
-                        "JSONSchema": {
-                            "$schema": "http://json-schema.org/draft-07/schema#",
-                            "type": "object",
-                            "properties": {
-                                "rule_name": {
-                                    "type": "string"
-                                },
-                                "rule_state": {
-                                    "type": "boolean"
-                                }
-                            },
-                            "required": [
-                                "rule_name",
-                                "rule_state"
-                            ]
-                        }
+                    "required": ["APP_RULE"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
                     },
-                    "get_rule": {
-                        "JSONSchema": {
-                            "$schema": "http://json-schema.org/draft-07/schema#",
-                            "type": "object",
-                            "properties": {
-                                "rule_name": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "rule_name"
-                            ]
-                        }
-                    }
-                }
-            ]
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
+            }
         },
         "auth_apps": {
             "key_value_patterns": [
@@ -112,10 +83,30 @@
                     }
                 }
             },
-            "queries": {
-                "insert_auth_app": {},
-                "get_auth_app_config": {},
-                "update_auth_app": {}
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "AUTH_APP_NAME": {
+                          "type": "string"
+                        }
+                    },
+                    "required": ["AUTH_APP_NAME"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
             }
         },
         "app_rule_auth": {
@@ -134,15 +125,39 @@
                     }
                 }
             },
-            "queries": {
-                "insert_auth_app": {},
-                "get_auth_app_config": {},
-                "update_auth_app": {}
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "APP_RULE": {
+                          "type": "string"
+                        },
+                        "AUTH_APP_NAME": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["APP_RULE", "AUTH_APP_NAME"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
             }
         },
         "secp256k1_auth_app": {
             "key_value_patterns": [
-                "app_rule_${APP_RULE}_auth_app_${AUTH_APP_NAME}_spec${secp256k1_PUBLIC_KEY}",
+                "app_rule_${APP_RULE}_spec${secp256k1_PUBLIC_KEY}",
+                "spec_${secp256k1_PUBLIC_KEY}_app_rule_${APP_RULE}",
                 "change_log_index_${LOG_AUTO_INCREMENT}",
                 "change_log_count"
             ],
@@ -155,10 +170,36 @@
                     }
                 }
             },
-            "queries": {
-                "enable_rule_app_nostr_user": {},
-                "disable_rule_app_nostr_user": {},
-                "get_rule_app_nostr_user": {}
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "APP_RULE": {
+                          "type": "string"
+                        },
+                        "secp256k1_PUBLIC_KEY" : {
+                            "type" : "string"
+                        }
+                    },
+                    "required": ["APP_RULE", "secp256k1_PUBLIC_KEY"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "secp256k1_PUBLIC_KEY" : {
+                        "type" : "string"
+                      }
+                    },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
             }
         }
     }
