@@ -1,6 +1,6 @@
 {
     "app_names": [
-        "token_RBAC"
+        "DD_token_RBAC"
     ],
     "app_version": "0.0.1",
     "tags": "nostr",
@@ -9,7 +9,7 @@
     ],
     "schema_variables": {
         "TOKEN_ID": {
-            "Desciption": "CID hash of token ID"
+            "Desciption": "CID hash of token contents"
         },
         "TOKEN_TRANSACTION_NUM": {
             "Desciption": "CID hash of token ID"

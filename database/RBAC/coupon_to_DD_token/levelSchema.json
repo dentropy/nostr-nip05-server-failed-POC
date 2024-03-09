@@ -1,0 +1,161 @@
+{
+    "app_names": [
+        "coupon_to_DD_token"
+    ],
+    "tags": "nostr",
+    "authors": [
+        "dentropy@ddaemon.org"
+    ],
+    "schema_variables": {
+        "DID": {
+            "Description": "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+        },
+        "COUPON_CODE": {
+            "Desciption": ""
+        },
+        "DD_TOKEN_ID": {
+            "Description": ""
+        },
+        "COUPON_USE_COUNT": {
+            "Description": ""
+        },
+        "HOT_DID_TRANSACTION_CID" : {
+
+        },
+        "LOG_AUTO_INCREMENT": {
+            "Description": "Increments with the log going up"
+        }
+    },
+    "schema": {
+        "PKI": {
+            "index_type": "indexed",
+            "key_value_patterns": [
+                "DID_%${APP_RULE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                    "DID": {
+                        "type": "string"
+                    },
+                    "publicKey": {
+                        "type": "string"
+                    },
+                    "privateKey": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "DID",
+                    "publicKey",
+                    "privateKey"
+                ]
+            }
+        },
+        "coupons": {
+            "index_type": "indexed",
+            "key_value_patterns": [
+                "coupon_code%${COUPON_CODE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                    "hot_DID": {
+                        "type": "string"
+                    },
+                    "coupon_code": {
+                        "type": "string"
+                    },
+                    "DD_token_CID": {
+                        "type": "string"
+                    },
+                    "number_of_uses" : {
+                        "type" : "number"
+                    },
+                    "token_amount" : {
+                        "type" : "string"
+                    }
+                },
+                "required": [
+                    "hot_DID",
+                    "coupon_code",
+                    "DD_token_CID",
+                    "number_of_uses",
+                    "token_amount"
+                ]
+            }
+        },
+        "coupon_transactions": {
+            "index_type": "indexed",
+            "key_value_patterns": [
+                "coupon_code_lookup%${COUPON_CODE}%_%${COUPON_USE_COUNT}%_%${HOT_DID_TRANSACTION_CID}%",
+                "DD_token_ID_lookup%${DD_TOKEN_ID}%_%${COUPON_CODE}%_%${COUPON_USE_COUNT}%_%${HOT_DID_TRANSACTION_CID}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                    "hot_DID_transaction_CID": {
+                        "type": "string"
+                    },
+                    "coupon_code": {
+                        "type": "string"
+                    },
+                    "hot_DID": {
+                        "type": "string"
+                    },
+                    "use_count" : {
+                        "type" : "number"
+                    }
+                },
+                "required": [
+                    "hot_DID_transaction_CID",
+                    "coupon_code",
+                    "hot_DID",
+                    "use_count"
+                ]
+            }
+        },
+        "live_coupons": {
+            "index_type": "caching",
+            "key_value_patterns": [
+                "rule_name_%${APP_RULE}%"
+            ]
+        }
+    }
+}

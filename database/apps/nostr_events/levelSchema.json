@@ -1,0 +1,83 @@
+{
+    "app_names": [
+        "nostr_events"
+    ],
+    "tags": "nostr",
+    "authors": [
+        "dentropy@ddaemon.org"
+    ],
+    "schema_variables": {
+        "id": {
+            "Description": ""
+        },
+        "pubkey": {
+            "Description": "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+        },
+        "created_at": {
+            "Description": "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+        },
+        "kind": {
+            "Desciption": ""
+        },
+        "LOG_AUTO_INCREMENT": {
+            "Description": "Increments with the log going up"
+        }
+    },
+    "schema": {
+        "nostr_events": {
+            "index_type": "indexed",
+            "key_value_patterns": [
+                "nostr_event_id_%${id}%",
+                "events_by_pubkey_to_timestamp_%${pubkey}%_%${created_at}%",
+                "events_by_timestamp_to_pubkey_%${created_at}%_%${pubkey}%",
+                "events_by_kind_to_timestamp_%${created_at}%_%${created_at}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "pubkey": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "number"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "content": {
+                        "type": "string"
+                    },
+                    "sig": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "DID",
+                    "publicKey",
+                    "privateKey"
+                ]
+            }
+        }
+    }
+}
