@@ -2,6 +2,7 @@
   "app_names": [
     "nostr_NIP05_relay_map"
   ],
+  "app_version" : "0.0.1",
   "tags": "nostr",
   "authors": [
     "dentropy@ddaemon.org"
@@ -29,8 +30,8 @@
   "schema": {
     "dns_names": {
       "key_value_patterns": [
-        "dns_name_${DNS_NAME}",
-        "change_log_index_${LOG_AUTO_INCREMENT}",
+        "dns_name_%${DNS_NAME}%",
+        "change_log_index_%${LOG_AUTO_INCREMENT}%",
         "change_log_count"
       ],
       "upsert_json_schema": {
@@ -77,10 +78,10 @@
     },
     "NIP05_internet_identifier": {
       "key_value_patterns": [
-        "NIP05_internet_identifier_${NOSTR_NAME_LOCAL_PART}@${DNS_NAME}",
-        "NIP05_dns_first_${DNS_NAME}_${NOSTR_NAME_LOCAL_PART}",
-        "NIP05_public_key_${NOSTR_PUBLIC_KEY}_${NOSTR_NAME_LOCAL_PART}@${DNS_NAME}",
-        "change_log_index_${LOG_AUTO_INCREMENT}",
+        "NIP05_internet_identifier_%${NOSTR_NAME_LOCAL_PART}%@%${DNS_NAME}%",
+        "NIP05_dns_first_%${DNS_NAME}%_%${NOSTR_NAME_LOCAL_PART}%",
+        "NIP05_public_key_%${NOSTR_PUBLIC_KEY}%_%${NOSTR_NAME_LOCAL_PART}%@%${DNS_NAME}%",
+        "change_log_index_%${LOG_AUTO_INCREMENT}%",
         "change_log_count"
       ],
       "upsert_json_schema": {
@@ -141,8 +142,8 @@
     },
     "nostr_public_keys": {
       "key_value_patterns": [
-        "nostr_key_${NOSTR_PUBLIC_KEY}",
-        "change_log_index_${LOG_AUTO_INCREMENT}",
+        "nostr_key_%${NOSTR_PUBLIC_KEY}%",
+        "change_log_index_%${LOG_AUTO_INCREMENT}%",
         "change_log_count"
       ],
       "upsert_json_schema": {

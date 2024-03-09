@@ -1,0 +1,221 @@
+{
+    "app_names": [
+        "token_RBAC"
+    ],
+    "app_version": "0.0.1",
+    "tags": "nostr",
+    "authors": [
+        "dentropy@ddaemon.org"
+    ],
+    "schema_variables": {
+        "TOKEN_ID": {
+            "Desciption": "CID hash of token ID"
+        },
+        "TOKEN_TRANSACTION_NUM": {
+            "Desciption": "CID hash of token ID"
+        },
+        "SPECIFIC_TOKEN_HOLDER_NONCE" : {
+            "Desciption": "CID hash of token ID"
+        },
+        "TRANSACTION_CID" : {
+            "Desciption": "CID hash of token ID"
+        },
+        "secp256k1_PUBLIC_KEY": {
+            "Desciption": "Nostr Public Key, or Bitcoin, you know how it is"
+        },
+        "LOG_AUTO_INCREMENT": {
+            "Description": "Increments with the log going up"
+        }
+    },
+    "schema": {
+        "token_IDs": {
+            "index_type": "indexed",
+            "key_value_patterns": [
+                "token_id_%${TOKEN_ID}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                    "app_name": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "signing_key": {
+                        "type": "string"
+                    },
+                    "token_name": {
+                        "type": "string"
+                    },
+                    "operation_name": {
+                        "type": "string"
+                    },
+                    "operation_data": {
+                        "type": "object",
+                        "properties": {
+                            "tick": {
+                                "type": "string"
+                            },
+                            "max_supply": {
+                                "type": "string"
+                            },
+                            "limit_per_mint": {
+                                "type": "string"
+                            },
+                            "decimals": {
+                                "type": "number"
+                            },
+                            "inital_token_admins": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": [
+                            "tick",
+                            "max_supply",
+                            "limit_per_mint",
+                            "decimals",
+                            "inital_token_admins"
+                        ]
+                    }
+                },
+                "required": [
+                    "app_name",
+                    "version",
+                    "signing_key",
+                    "token_name",
+                    "operation_name",
+                    "operation_data"
+                ]
+            }
+        },
+        "token_transactions": {
+            "index_type": "indexed",
+            "key_value_patterns": [
+                "transaction_token_lookup_%${TOKEN_ID}%_%${TOKEN_TRANSACTION_NUM}%",
+                "transaction_CID_%${TOKEN_ID}%_%${TOKEN_TRANSACTION_NUM}%",
+                "nonce_lookup_%${secp256k1_PUBLIC_KEY}%_%${TOKEN_ID}%_%${SPECIFIC_TOKEN_HOLDER_NONCE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                    "app_name": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "previous_transaction_CID" : {
+                        "type": "string"
+                    },
+                    "signing_public_key": {
+                        "type": "string"
+                    },
+                    "nonce" : {
+                        "type" : "number"
+                    },
+                    "token_ID": {
+                        "type": "string"
+                    },
+                    "opteraion_name": {
+                        "type": "string"
+                    },
+                    "operation_data": {
+                        "type": "object",
+                        "properties": {},
+                        "required": []
+                    }
+                },
+                "required": [
+                    "app_name",
+                    "version",
+                    "previous_transaction_CID",
+                    "signing_public_key",
+                    "nonce",
+                    "token_ID",
+                    "opteraion_name",
+                    "operation_data"
+                ]
+            }
+        },
+        "token_balances": {
+            "index_type": "indexed",
+            "key_value_patterns": [
+                "public_key_to_token_balance_%${secp256k1_PUBLIC_KEY}%_%${secp256k1_PUBLIC_KEY}%",
+                "token_balence_to_public_key_%${secp256k1_PUBLIC_KEY}%_%${secp256k1_PUBLIC_KEY}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema" : {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "value"
+                ]
+            }
+        },
+        "token_state": {
+            "index_type": "caching",
+            "key_value_patterns": [
+                "token_id_%${TOKEN_ID}%"
+            ],
+            "upsert_json_schema" : {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "value"
+                ]
+            }
+        }
+    }
+}

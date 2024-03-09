@@ -29,8 +29,8 @@
     "schema": {
         "app_rules": {
             "key_value_patterns": [
-                "rule_name_${APP_RULE}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "rule_name_%${APP_RULE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
                 "change_log_count"
             ],
             "load_defaults": {
@@ -70,8 +70,8 @@
         },
         "auth_apps": {
             "key_value_patterns": [
-                "rule_name_${AUTH_APP_NAME}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "rule_name_%${AUTH_APP_NAME}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
                 "change_log_count"
             ],
             "load_defaults": {
@@ -111,9 +111,9 @@
         },
         "app_rule_auth": {
             "key_value_patterns": [
-                "rule_app_name_${APP_RULE}_${AUTH_APP_NAME}",
-                "app_name_rule_${AUTH_APP_NAME}_${APP_RULE}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "rule_app_name_%${APP_RULE}%_%${AUTH_APP_NAME}%",
+                "app_name_rule_%${AUTH_APP_NAME}%_%${APP_RULE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
                 "change_log_count"
             ],
             "load_defaults": {
@@ -156,9 +156,9 @@
         },
         "secp256k1_auth_app": {
             "key_value_patterns": [
-                "app_rule_${APP_RULE}_spec${secp256k1_PUBLIC_KEY}",
-                "spec_${secp256k1_PUBLIC_KEY}_app_rule_${APP_RULE}",
-                "change_log_index_${LOG_AUTO_INCREMENT}",
+                "app_rule_%${APP_RULE}%_spec%${secp256k1_PUBLIC_KEY}%",
+                "spec_%${secp256k1_PUBLIC_KEY}%_app_rule_%${APP_RULE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
                 "change_log_count"
             ],
             "load_defaults": {

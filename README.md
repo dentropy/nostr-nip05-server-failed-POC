@@ -12,7 +12,7 @@ node ./database/levelSchema.js
 
 node ./database/dump.js
 
-node ./database/dump.js > test.ndjson && jq '.' test.ndjson > test2.ndjson
+node ./database/dump.js > dbDump.ndjson && jq '.' dbDump.ndjson > test2.ndjson && mv test2.ndjson dbDump.ndjson
 
 
 ```

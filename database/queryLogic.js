@@ -51,7 +51,7 @@ export async function upsert_using_key_value_patterns(
     //     return {"error" : `input_object.variables do not match ${JSON.stringify(Object.keys(key_tracker))}`}
     // }
 
-    console.log("Still chugging along")
+    console.log("Still_chugging_along")
     
 
     // Substitute in variables we want to key_value_patterns

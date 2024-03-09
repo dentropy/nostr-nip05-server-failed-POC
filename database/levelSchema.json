@@ -2,6 +2,7 @@
     "app_names": [
         "nostr_NIP05_server"
     ],
+    "app_version" : "0.0.1",
     "tags": "nostr",
     "authors": [
         "dentropy@ddaemon.org"
@@ -15,6 +16,9 @@
         }
     ],
     "schema_variables": {
+        "DNS_NAME" : {
+          "Description": ""
+        },
         "NOSTR_PUBLIC_KEY": {
             "Description": "Just take the npub off the nostr public key"
         },
@@ -25,7 +29,7 @@
     "schema": {
         "nostr_json": {
             "key_value_patterns": [
-                "nostr_${DNS_NAME}"
+                "nostr_%${DNS_NAME}%"
             ]
         ,
         "upsert_json_schema" : {

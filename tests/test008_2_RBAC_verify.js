@@ -8,6 +8,7 @@ async function main(){
     const level_db = new Level('./database/db.leveldb', { valueEncoding: 'json' })
     const dddb = level_db.sublevel('ddaemon', { valueEncoding: 'json' })
     let db_schema = await level_schema(dddb)
+    const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
     // console.log("db_schema")
     // console.log(JSON.stringify(db_schema, null, 2))
     
@@ -17,19 +18,15 @@ async function main(){
 
     let query_result = await get_index(
         dddb, 
-        'apps.nostr_NIP05_relay_map.NIP05_internet_identifier', 
-        "nip05_dns_first_"
+        "RBAC.root_RBAC.secp256k1_auth_app", 
+        "spec_"
     )
+    let CID_result = await CID_store.get(query_result[Object.keys(query_result)[0]]["/"])
 
     console.log("query_result")
     console.log(query_result)
-
-    const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
-
-    for(const result of Object.keys(query_result)){
-        console.log(result)
-        console.log(await CID_store.get(  query_result[result]["/"]  )) 
-    }
+    console.log("CID_result")
+    console.log(CID_result)
 }
 
 main()

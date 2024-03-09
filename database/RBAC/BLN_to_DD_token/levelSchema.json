@@ -1,1 +1,207 @@
-#TODO
+{
+    "app_names": [
+        "DD_token_RBAC"
+    ],
+    "app_version" : "0.0.1",
+    "tags": "nostr",
+    "authors": [
+        "dentropy@ddaemon.org"
+    ],
+    "schema_variables": {
+        "IPNS_NAME": {
+            "Description": "Inter PLanetary Name System Name, renders as public key, should be stored in root key of application"
+        },
+        "NOSTR_PUBLIC_KEY": {
+            "Description": "Just take the npub off the nostr public key"
+        },
+        "LOG_AUTO_INCREMENT": {
+            "Description": "Increments with the log going up"
+        },
+        "AUTH_APP_NAME": {
+            "Desciption": ""
+        },
+        "APP_RULE": {
+            "Description": "Remember group permissions like root, and email and fax are also rules!"
+        },
+        "secp256k1_PUBLIC_KEY": {
+            "Desciption": "Nostr Public Key, or Bitcoin, you know how it is"
+        }
+    },
+    "schema": {
+        "app_rules": {
+            "key_value_patterns": [
+                "rule_name_%${APP_RULE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "APP_RULE": {
+                          "type": "string"
+                        }
+                    },
+                    "required": ["APP_RULE"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
+            }
+        },
+        "auth_apps": {
+            "key_value_patterns": [
+                "rule_name_%${AUTH_APP_NAME}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "AUTH_APP_NAME": {
+                          "type": "string"
+                        }
+                    },
+                    "required": ["AUTH_APP_NAME"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
+            }
+        },
+        "app_rule_auth": {
+            "key_value_patterns": [
+                "rule_app_name_%${APP_RULE}%_%${AUTH_APP_NAME}%",
+                "app_name_rule_%${AUTH_APP_NAME}%_%${APP_RULE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "APP_RULE": {
+                          "type": "string"
+                        },
+                        "AUTH_APP_NAME": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["APP_RULE", "AUTH_APP_NAME"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
+            }
+        },
+        "secp256k1_auth_app": {
+            "key_value_patterns": [
+                "app_rule_%${APP_RULE}%_spec%${secp256k1_PUBLIC_KEY}%",
+                "spec_%${secp256k1_PUBLIC_KEY}%_app_rule_%${APP_RULE}%",
+                "change_log_index_%${LOG_AUTO_INCREMENT}%",
+                "change_log_count"
+            ],
+            "load_defaults": {
+                "change_log_count": {
+                    "type": "json_value",
+                    "version": "0.0.1",
+                    "value": {
+                        "count": 0
+                    }
+                }
+            },
+            "upsert_json_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "properties": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                        "APP_RULE": {
+                          "type": "string"
+                        },
+                        "secp256k1_PUBLIC_KEY" : {
+                            "type" : "string"
+                        }
+                    },
+                    "required": ["APP_RULE", "secp256k1_PUBLIC_KEY"]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "secp256k1_PUBLIC_KEY" : {
+                        "type" : "string"
+                      }
+                    },
+                    "required": ["enabled"]
+                  }
+                },
+                "required": ["variables", "value"]
+            }
+        }
+    }
+}
