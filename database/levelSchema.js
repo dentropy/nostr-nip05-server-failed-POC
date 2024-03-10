@@ -37,29 +37,6 @@ export async function level_schema(dddb){
     }
 }
 
-// async function configure_app(PKI_db, app_data_db, CID_db, db_schema, schema_prefix){
-//     for (const schema_sublevel_name of Object.keys(db_schema.schema) ) {
-//         const iseed = await randomBytes(32);
-//         const ikeys = await ipns(iseed);
-//         var value_to_encode = {
-//             privateKey : await ikeys.privateKey,
-//             publicKey  : await ikeys.publicKey
-//         }
-//         var cid_value = await CID.create(1, code, await sha256.digest(await encode(value_to_encode)))
-//         await CID_db.put(cid_value, value_to_encode)
-//         schema_ipns_lookup[schema_prefix + schema_sublevel_name] = await ikeys.base32
-//         await PKI_db.put(await ikeys.publicKey, cid_value)
-//         var current_sublevel = app_data_db.sublevel("app_" + ikeys.base32, { valueEncoding: 'json' })
-//         for ( const default_key_to_load of Object.keys(db_schema.schema[schema_sublevel_name].load_defaults) ) {
-//             var value_to_encode = db_schema.schema[schema_sublevel_name].load_defaults[default_key_to_load]
-//             var cid_value = CID.create(1, code, await sha256.digest(encode(value_to_encode)))
-//             await CID_db.put(cid_value, value_to_encode)
-//             await current_sublevel.put(default_key_to_load, value_to_encode)
-//         }
-//     }
-//     return schema_ipns_lookup
-// }
-
 
 // Install app
 // Create IPNS name
@@ -74,14 +51,19 @@ export async function level_schema(dddb){
 async function initialize_app_data(dddb){
     
 
-    // Store it in pki
+    // PKI_store is where all IPNS keys are stored, public and or private
     const PKI_store = dddb.sublevel('PKI', { valueEncoding: 'json' })
+    // CID_store is where all the IPFS Cntent Identifiers go
     const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
+    // The root_IPNS is for the nostr_NIP05_server app, its dependencies go under other IPNS keys
     let root_IPNS = (await generate_and_store_IPNS_keys(PKI_store)).toString()
+    // #TODO check if we acutally need this anywhere
     await dddb.put("root", root_IPNS)
-    // Configure app data directory
+    // app_data is where we store the data from individuals apps under an IPNS name
     const app_data =  dddb.sublevel('app_data', { valueEncoding: 'json' })
-    const app_root_data = app_data.sublevel((await root_IPNS).toString(), { valueEncoding: 'json' })
+    // app_root_data is where we can actually store app data, well CID's actually
+    const app_root_data = app_data.sublevel(root_IPNS, { valueEncoding: 'json' })
+    // app_root_data index root is where we store all the IPNS names the app itself and its dependencies
     await app_root_data.put('root',     {
         initialized : true,
         app_ipns_lookup : {}
@@ -89,7 +71,6 @@ async function initialize_app_data(dddb){
 
     // Load in all the schemas even from dependencies
     let db_schema = JSON.parse(await fs.readFileSync('./database/levelSchema.json'))
-    let schema_ipns_lookup = {}
     for (const DD_dependency of db_schema.dependencies){
         let levelSchema = await JSON.parse( fs.readFileSync( "./database/" + DD_dependency.name.split('.').join('/') + "/levelSchema.json" ) )
         for (const DD_index of Object.keys(levelSchema.schema) ){
@@ -99,8 +80,10 @@ async function initialize_app_data(dddb){
 
 
     // Generate all the Schema IPNS names and load in the default values
+    let schema_ipns_lookup = {}
     for (const DD_index of Object.keys(db_schema.schema)){
         schema_ipns_lookup[DD_index] = await generate_and_store_IPNS_keys(PKI_store)
+
         // Load in default values
 
         // console.log("\n\n")
@@ -136,13 +119,14 @@ async function initialize_app_data(dddb){
     }
 
     // Store schema_ipns_lookup
+    // apps_root will store IPNS names for each levelSchema
     let apps_root = await app_root_data.get('root')
+    // Generate the IPNS name
     apps_root.app_ipns_lookup[db_schema.app_names[0]] = await generate_and_store_IPNS_keys(PKI_store, CID_store)
+    // Generate a CID for the IPNS schema
     var cid_value = await CID.create(1, code, await sha256.digest(encode(schema_ipns_lookup)))
     await CID_store.put(cid_value, schema_ipns_lookup)
     await app_root_data.put('root', cid_value)
-
-
     const root_app_data = await app_data.sublevel(apps_root.app_ipns_lookup[db_schema.app_names[0]] , { valueEncoding: 'json' })
     var cid_value = await CID.create(1, code, await sha256.digest(encode(schema_ipns_lookup)))
     await CID_store.put(cid_value, schema_ipns_lookup)

@@ -104,7 +104,7 @@ export async function get_index(dddb, app_name, key_value_pattern){
 
 
     let results = {}
-    for await (const [key, value] of app_sublevel.iterator({ gte: key_value_pattern })) {
+    for await (const [key, value] of app_sublevel.iterator({ gte: key_value_pattern, let : key_value_pattern + "~" })) {
         results[key] = value // await CID_store.get(value["/"])
     }
     return results
