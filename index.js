@@ -223,9 +223,78 @@ app.post("/napi", async function (req, res) {
     }
     if (command_JSON.query_object.name == "RBAC.root_RBAC.secp256k1_auth_app") {
         if (command_JSON.query_type == "upsert") {
-            console.log("THIS_PART_WORKS2")
             if (roles.includes("root")) {
                 console.log("THIS_PART_WORKS")
+                let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.root_RBAC.secp256k1_auth_app"], { valueEncoding: 'json' })
+                let query_result = null;
+                try {
+                    query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                        level_schema_config.CID_store,
+                        current_app_store,
+                        level_schema_config.db_schema.schema["RBAC.root_RBAC.secp256k1_auth_app"].key_value_patterns,
+                        command_JSON.query_object.data,
+                        level_schema_config.db_schema.schema["RBAC.root_RBAC.secp256k1_auth_app"].upsert_json_schema
+                    )
+                } catch (error) {
+                    res.send({ "ERROR": "query_result did not work", "description": error })
+                    return true
+                }
+                res.send({status : "success"})
+                return true
+            }
+        }
+    }
+    if (command_JSON.query_object.name == "RBAC.DD_token_RBAC.deploy") {
+        if (command_JSON.query_type == "upsert") {
+            if (roles.includes("root")) {
+                const ajv = new Ajv()
+                const JSONSchema_validator = ajv.compile(level_schema_config.db_schema.functions['RBAC.DD_token_RBAC.deploy'].deploy.JSON_schema)
+                const JSONSchema_test = JSONSchema_validator(command_JSON.query_object.data)
+                if (!JSONSchema_test) {
+                    res.send({ "status": "ERROR", "Reason": "JSON_schema Test failed" })
+                    return true
+                }
+                // Validate version
+                if(command_JSON.query_object.data.version != "0.0.1"){
+                    res.send({ "status": "ERROR", "Reason": "Wrong version number, please set to 0.0.1" })
+                    return true
+                }
+                // Validate app_name
+                if(command_JSON.query_object.data.app_name != "DD_token"){
+                    res.send({ "status": "ERROR", "Reason": "Please set app_name to DD_token" })
+                    return true
+                }
+                // Same signing key as nostr event
+                if(req.body.pubkey != command_JSON.query_object.data.signing_public_key){
+                    res.send({ "status": "ERROR", "Reason": "data.signing_public_key must be the same as the address sending the nostr event" })
+                    return true
+                }
+                // Validate Timestamp
+                let current_timestamp_ms = Date.now();
+                let ms_offset = 1000 * 60 * 60 * 24
+                if(
+                    command_JSON.query_object.data.datatimestamp_ms < current_timestamp_ms - ms_offset && 
+                    command_JSON.query_object.data.datatimestamp_ms > current_timestamp_ms + ms_offset
+                )
+                {
+                    res.send({ "status": "ERROR", "Reason": "That timestamp is either a day in the past or future, please try again" })
+                    return true
+                }
+                // Validate that inital_token_admins are all nostr keys
+                try {
+                    for(const key_to_check of command_JSON.query_object.data.operation_data.inital_token_admins){
+                        await nip19.decode(key_to_check).data
+                    }
+                } catch (error) {
+                    res.send({ "status": "ERROR", "Reason": "data.operation_data.inital_token_admins are not all nostr public keys" })
+                    return true
+                }
+                // Validate the Token Admin is the same as signing key for nostr event
+                // #TODO we technically don't need to do this
+
+                // Update token_IDs
+                // Update token_state
+
                 let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.root_RBAC.secp256k1_auth_app"], { valueEncoding: 'json' })
                 let query_result = null;
                 try {

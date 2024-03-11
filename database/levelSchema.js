@@ -49,8 +49,6 @@ export async function level_schema(dddb){
     // Create a ipns name for each dd_index, saving them in the pki, also registering them in the root app-data index
     // Load all default data
 async function initialize_app_data(dddb){
-    
-
     // PKI_store is where all IPNS keys are stored, public and or private
     const PKI_store = dddb.sublevel('PKI', { valueEncoding: 'json' })
     // CID_store is where all the IPFS Cntent Identifiers go
@@ -72,9 +70,18 @@ async function initialize_app_data(dddb){
     // Load in all the schemas even from dependencies
     let db_schema = JSON.parse(await fs.readFileSync('./database/levelSchema.json'))
     for (const DD_dependency of db_schema.dependencies){
-        let levelSchema = await JSON.parse( fs.readFileSync( "./database/" + DD_dependency.name.split('.').join('/') + "/levelSchema.json" ) )
+        let levelSchemaFilename =  "./database/" + DD_dependency.name.split('.').join('/') + "/levelSchema.json" 
+        let levelSchema = await JSON.parse( fs.readFileSync(levelSchemaFilename) )
         for (const DD_index of Object.keys(levelSchema.schema) ){
             db_schema.schema[DD_dependency.name + "." + DD_index] = levelSchema.schema[DD_index]
+        }
+        console.log("\n\n")
+        console.log(levelSchemaFilename)
+        console.log(levelSchema)
+        if(Object.keys(levelSchema).includes("functions")){
+            for (const DD_index of Object.keys(levelSchema.functions) ){
+                db_schema.functions[DD_dependency.name + "." + DD_index] = levelSchema.functions[DD_index]
+            }
         }
     }
 

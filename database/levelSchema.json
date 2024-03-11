@@ -13,6 +13,9 @@
         },
         {
             "name": "apps.nostr_NIP05_relay_map"
+        },
+        {
+          "name": "RBAC.DD_token_RBAC" 
         }
     ],
     "schema_variables": {
@@ -68,5 +71,6 @@
               "value"
             ]
           }
-    }}
+    }},
+    "functions" : {}
 }
