@@ -65,7 +65,21 @@ export NOSTR_DNS_NAME="dentropic.net"
 
 ```
 
+#### Tests
 
+``` bash
+
+export NOSTR_ADMIN_PUBLIC_KEY="npub15kpvwpk66wns84kqyywuyhntkt9ujzqua47z4katjy2shyzkgknsejdaas" 
+rm -rf database/testapi.db
+node index.js -lp ./database/testapi.db
+
+```
+
+``` bash
+
+npm run test
+
+```
 
 #### Reminders
 

@@ -4,17 +4,40 @@ import { level_schema } from "./database/levelSchema.js";
 import { get_index, get_query, upsert_query } from "./database/db.js";
 import { upsert_using_key_value_patterns_and_JSONSchema } from './database/queryLogic.js';
 import Ajv from 'ajv';
+import {program} from "commander";
+import dotenv from 'dotenv';
 // Nostr specific imports
 import * as nip19 from 'nostr-tools/nip19';
 import { generateSecretKey, getPublicKey } from 'nostr-tools/pure';
 import { finalizeEvent, verifyEvent } from 'nostr-tools'
-// import dotenv from 'dotenv';
-// let dotenv_config = dotenv.config()
+
+
+// Setup default Varaibles
+let dotenv_config = dotenv.config()
+let levelPath = './database/db.leveldb'
+
+
+// START COMMANDER STUFF
+program
+  .option('-lp, --levelPath <string>')
+program.parse();
+const options = program.opts();
+if( Object.keys(options).length == 0 ){
+    console.log(`Defaulting to default levelPath=${levelPath}`)
+}
+if( Object.keys(options).includes("levelPath") ){
+    levelPath = options.levelPath
+    console.log(`Using levelPath=${levelPath}`)
+}
+// END Commander STuff
+
 
 var app = express();
 app.use(express.urlencoded({extended: true}));
 app.use(express.json()) 
 
+
+// Setup global variables used in function
 const level_db = new Level('./database/db.leveldb', { valueEncoding: 'json' })
 const dddb = level_db.sublevel('ddaemon', { valueEncoding: 'json' })
 const CID_store = dddb.sublevel('CID_store', { valueEncoding: 'json' })
@@ -25,6 +48,8 @@ let app_root_CID = null;
 let db_schema = null;
 let app_root = null;
 let app_key = null;
+
+
 async function setup(dddb){
     db_schema = await level_schema(dddb)
     // Check for Nostr public key to put in admin_t table
@@ -207,6 +232,7 @@ async function setup(dddb){
 
 }
 setup(dddb)
+
 
 app.get('/', (req, res) => {
     res.send("Hello, World! This is a GET request. <a href='/.well-known/nostr.json'>Well Known</a>");
@@ -518,6 +544,7 @@ app.post('/update', async function (req, res) {
     }
 })
 
+
 app.post('/purchase', async function (req, res) {
     // Not implimented should produce an error
 
@@ -531,6 +558,7 @@ app.post('/purchase', async function (req, res) {
       res.send(err)
     }
 })
+
 
 var server = app.listen(8081, function () {
     var host = server.address().address
