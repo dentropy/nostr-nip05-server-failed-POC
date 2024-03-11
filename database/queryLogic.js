@@ -13,6 +13,8 @@ export async function upsert_using_key_value_patterns(
     input_object
 )
 {
+    console.log("\n")
+    console.log("Running upsert_using_key_value_patterns")
     console.log("key_value_patterns")
     console.log(key_value_patterns)
 
@@ -40,18 +42,17 @@ export async function upsert_using_key_value_patterns(
     variables_list.sort((a, b) => a - b);
 
 
-    console.log("variables_list")
-    console.log(variables_list)
+    // console.log("variables_list")
+    // console.log(variables_list)
 
 
     if (key_tracker_list.length !== variables_list.length) {
         return {"error" : "input_object.variables list length"};
     }
+    // TODO
     // if( ! ( key_tracker_list.every((value, index) => value === variables_list[index]) )){
     //     return {"error" : `input_object.variables do not match ${JSON.stringify(Object.keys(key_tracker))}`}
     // }
-
-    console.log("Still_chugging_along")
     
 
     // Substitute in variables we want to key_value_patterns
@@ -60,23 +61,20 @@ export async function upsert_using_key_value_patterns(
         substituted_key_value_patterns.push(temp_kv.replace(/\${(.*?)}/g, (match, key) => input_object.variables[key] || match))
     }
 
-    console.log("substituted_key_value_patterns")
-    console.log(substituted_key_value_patterns)
+    // console.log("substituted_key_value_patterns")
+    // console.log(substituted_key_value_patterns)
     
 
     // Upsert LevelDB making sure to log the change
     for(const temp_kv of substituted_key_value_patterns){
         var cid_value = CID.create(1, code, await sha256.digest(encode( input_object.value )))
 
-        console.log("input_object.value")
-        console.log(input_object.value)
-        console.log("cid_value")
-        console.log(cid_value.toString())
+        // console.log("input_object.value")
+        // console.log(input_object.value)
+        // console.log("cid_value")
+        // console.log(cid_value.toString())
 
         await CID_store.put(cid_value.toString(), input_object.value)
-        let CID_TEST = await CID_store.get(cid_value.toString())
-        console.log("CID_TEST")
-        console.log(CID_TEST)
         try{
             let old_data = await DD_index_data_store.get(temp_kv)
             try {

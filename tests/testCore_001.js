@@ -21,7 +21,7 @@ describe('Upsert, Get, and Index', async function () {
   let app_root = null;
   let app_key = null;
 
-  // These are used in each it function
+  // These are used in each "it" function
   let query_object = null;
   let query_result = null;
 
