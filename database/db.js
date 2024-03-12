@@ -76,8 +76,17 @@ export async function get_query(dddb, db_schema, query_object){
     }
     let app_sublevel = app_data.sublevel(app_root[query_object.name], { valueEncoding: 'json' })
 
-    let key = db_schema.schema[query_object.name].key_value_patterns[0].replace(/\${(.*?)}/g, (match, key) => query_object.data.variables[key] || match)
-    return await CID_store.get( (await app_sublevel.get(key) )["/"])
+    let key = null;
+    if(!Object.keys(query_object).includes("key_value_pattern")){
+        key = db_schema.schema[query_object.name].key_value_patterns[0].replace(/\${(.*?)}/g, (match, key) => query_object.data.variables[key] || match)
+    } else {
+        key = query_object.key_value_pattern.replace(/\${(.*?)}/g, (match, key) => query_object.data.variables[key] || match)
+    }
+    console.log("key")
+    console.log(key)
+    let tmp_CID = (await app_sublevel.get(key) )["/"] 
+    let tmp_result = await CID_store.get( tmp_CID )
+    return tmp_result
 }
 
 

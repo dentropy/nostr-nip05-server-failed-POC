@@ -165,17 +165,17 @@ export async function upsert_using_key_value_patterns_and_JSONSchema(
     }
 }
 
-
+// current_app_store
 export async function DD_upsert(
     level_schema_config,
     query_object
 ) {
-    if(level_schema_config.db_schema.schema[query_object.name].includes("upsert_json_schema")){
+    if(Object.keys(level_schema_config.db_schema.schema[query_object.name]).includes("upsert_json_schema")){
         return await upsert_using_key_value_patterns_and_JSONSchema(
             level_schema_config.CID_store,
-            evel_schema_config.app_data.sublevel(level_schema_config.app_root[query_object.name], { valueEncoding: 'json' }),
+            level_schema_config.app_data.sublevel(level_schema_config.app_root[query_object.name], { valueEncoding: 'json' }),
             level_schema_config.db_schema.schema[query_object.name].key_value_patterns,
-            query_object,
+            query_object.data,
             level_schema_config.db_schema.schema[query_object.name].upsert_json_schema
         )
     }
@@ -184,7 +184,7 @@ export async function DD_upsert(
             level_schema_config.CID_store,
             level_schema_config.app_data.sublevel(level_schema_config.app_root[query_object.name], { valueEncoding: 'json' }),
             level_schema_config.db_schema.schema[query_object.name].key_value_patterns,
-            query_object
+            query_object.data
         )
     }
 }

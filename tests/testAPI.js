@@ -478,8 +478,8 @@ describe('Test auth on API', async function () {
           body: JSON.stringify(signedEvent)
         })
         fetch_response = await fetch_response.json()
-        console.log("fetch_response")
-        console.log(fetch_response)
+        // console.log("fetch_response")
+        // console.log(fetch_response)
       } catch (error) {
         assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
       }
@@ -499,7 +499,8 @@ describe('Test auth on API', async function () {
               TOKEN_ID: first_test_token,
               secp256k1_PUBLIC_KEY: public_key
             }
-          }
+          },
+          "key_value_pattern" : "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
         })
       };
   
