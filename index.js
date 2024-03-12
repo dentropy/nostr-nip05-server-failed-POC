@@ -156,10 +156,6 @@ app.post("/napi", async function (req, res) {
                     level_schema_config.db_schema.schema['apps.nostr_NIP05_relay_map.NIP05_internet_identifier'].key_value_patterns,
                     command_JSON.query_object.data,
                     level_schema_config.db_schema.schema['apps.nostr_NIP05_relay_map.NIP05_internet_identifier'].upsert_json_schema)
-
-
-
-
                 // Create nostr.json
                 try {
                     // console.log("command_JSON")
@@ -854,7 +850,10 @@ app.post("/napi", async function (req, res) {
                 command_JSON.query_object.data.value.datatimestamp_ms < token_state_data.last_transaction_timestamp_ms &&
                 current_timestamp_ms > command_JSON.query_object.data.value.datatimestamp_ms
             ) {
-                res.send({ "status": "ERROR", "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms}` })
+                res.send({ 
+                    "status": "ERROR", 
+                    "HI" : "Hello",
+                    "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms}` })
                 return true
             }
             // Get sender balance
