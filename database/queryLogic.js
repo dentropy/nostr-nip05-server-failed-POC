@@ -40,6 +40,7 @@ export async function upsert_using_key_value_patterns(
     key_tracker_list.sort((a, b) => a - b);
     let variables_list = Object.keys(input_object.variables)
     variables_list.sort((a, b) => a - b);
+    
 
 
     // console.log("variables_list")
@@ -47,7 +48,14 @@ export async function upsert_using_key_value_patterns(
 
 
     if (key_tracker_list.length !== variables_list.length) {
-        return {"error" : "input_object.variables list length"};
+        return {
+            "status" : "error",
+            "description" : "input_object.variables list length",
+            "data" : {
+                key_tracker_list : key_tracker_list,
+                variables_list : variables_list
+            }
+        };
     }
     // TODO
     // if( ! ( key_tracker_list.every((value, index) => value === variables_list[index]) )){
@@ -61,8 +69,10 @@ export async function upsert_using_key_value_patterns(
         substituted_key_value_patterns.push(temp_kv.replace(/\${(.*?)}/g, (match, key) => input_object.variables[key] || match))
     }
 
-    // console.log("substituted_key_value_patterns")
-    // console.log(substituted_key_value_patterns)
+    console.log("key_value_patterns")
+    console.log(key_value_patterns)
+    console.log("substituted_key_value_patterns")
+    console.log(substituted_key_value_patterns)
     
 
     // Upsert LevelDB making sure to log the change
@@ -124,9 +134,12 @@ export async function upsert_using_key_value_patterns_and_JSONSchema(
 )
 {
     // Check input_object.data valiates with JSONSchema_for_validation, otherwise return error
-    console.log("CHECKME")
+    console.log("\n\n")
+    console.log("JSONSchema_then_input_object")
     console.log(JSON.stringify(JSONSchema_for_validation, null, 2))
     console.log(JSON.stringify(input_object, null, 2))
+    console.log("key value patterns")
+    console.log(key_value_patterns)
 
     const ajv = new Ajv()
     const JSONSchema_validator = ajv.compile(JSONSchema_for_validation)
@@ -135,14 +148,21 @@ export async function upsert_using_key_value_patterns_and_JSONSchema(
     console.log("JSONSchema_test")
     console.log(JSONSchema_test)
     if(JSONSchema_test){
-        return await upsert_using_key_value_patterns(
+        let the_result = await upsert_using_key_value_patterns(
             CID_store,
             DD_index_data_store,
             key_value_patterns,
             input_object
         )
+        return the_result
     }
     else {
-        return {"error" : "Failed to pass JSONSchema test", "data" : JSONSchema_test}
+        return {
+            "status" : "error",
+            "description" : "Failed to pass JSONSchema test", 
+            "data" : {
+                JSON_schema : JSONSchema_for_validation,
+                JSON_data : input_object
+            }}
     }
 }

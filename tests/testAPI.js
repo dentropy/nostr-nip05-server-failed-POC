@@ -4,6 +4,11 @@ import { finalizeEvent, verifyEvent } from 'nostr-tools';
 import * as nip19 from 'nostr-tools/nip19'
 import assert from "assert"
 
+// IPFS CID imports
+import { encode, decode } from '@ipld/dag-json'
+import { CID } from 'multiformats'
+import { sha256 } from 'multiformats/hashes/sha2'
+
 describe('Test auth on API', async function () {
 
   const mnemonic = "curve foster stay broccoli equal icon bamboo champion casino impact will damp"
@@ -23,11 +28,11 @@ describe('Test auth on API', async function () {
     let mnemonic_validation = validateWords(mnemonic)
     secret_key = privateKeyFromSeedWords(mnemonic, "", 0)
     public_key = getPublicKey(secret_key)
-    npub = nip19.npubEncode(secret_key)
+    npub = nip19.npubEncode(public_key)
 
     secret_key2 = privateKeyFromSeedWords(mnemonic, "", 1)
     public_key2 = getPublicKey(secret_key2)
-    npub2 = nip19.npubEncode(secret_key2)
+    npub2 = nip19.npubEncode(public_key2)
 
 
     appsnames = await fetch("http://localhost:8081/appnames")
@@ -145,23 +150,23 @@ describe('Test auth on API', async function () {
         tags: [
           ['DD']
         ],
-        content: 
+        content:
           JSON.stringify({
-            "app_name" : "nostr_NIP05_server",
+            "app_name": "nostr_NIP05_server",
             "app_key": appsnames.app_key,
-            "query_type" : "upsert",
-            "query_object" : {
-                "name" : "RBAC.root_RBAC.secp256k1_auth_app",
-                "data" : {
-                    "variables" : {
-                        "APP_RULE" : "nip05_user",
-                        "secp256k1_PUBLIC_KEY" : public_key2
-                    },
-                    "value" : {
-                        "enabled" : true,
-                        secp256k1_PUBLIC_KEY : public_key2
-                    }
+            "query_type": "upsert",
+            "query_object": {
+              "name": "RBAC.root_RBAC.secp256k1_auth_app",
+              "data": {
+                "variables": {
+                  "APP_RULE": "nip05_user",
+                  "secp256k1_PUBLIC_KEY": public_key2
+                },
+                "value": {
+                  "enabled": true,
+                  secp256k1_PUBLIC_KEY: public_key2
                 }
+              }
             }
           }),
       }, secret_key)
@@ -234,6 +239,192 @@ describe('Test auth on API', async function () {
     })
   })
 
+  describe("Test DD_token_RBAC", async function () {
+
+    let first_test_token = null;
+    it('Deploy a token using the root permissions', async function () {
+      let request_data = {
+        "app_name": "RBAC.DD_token_RBAC.deploy",
+        "app_key": appsnames.app_key,
+        "query_type": "upsert",
+        "query_object": {
+          "name": "RBAC.DD_token_RBAC.deploy",
+          "data": {
+            "variables": {
+              "TOKEN_ID": "PLACEHOLDER"
+            },
+            "value": {
+              "app_name": "DD_token_RBAC",
+              "version": "0.0.1",
+              "signing_public_key": nip19.npubEncode(public_key),
+              "operation_name": "deploy",
+              "timestamp_ms": Date.now(),
+              "operation_data": {
+                "token_name": "TEST TOKEN",
+                "token_ticker": "TEST",
+                "max_supply": "1000000000000000",
+                "limit_per_mint": "1000000000",
+                "decimals": 3,
+                "inital_token_admins": [
+                  nip19.npubEncode(public_key)
+                ]
+              }
+            }
+          }
+        }
+      }
+      const JSON_code = 0x0200
+      let encoded = encode(request_data.query_object.data.value)
+      let hash = await sha256.digest(encoded)
+      let cidv1 = CID.create(1, JSON_code, hash)
+      first_test_token = String(cidv1)
+      request_data.query_object.data.variables.TOKEN_ID = String(cidv1)
+      let signedEvent = finalizeEvent({
+        kind: 1,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [
+          ['DD']
+        ],
+        content:
+          JSON.stringify(request_data),
+      }, secret_key)
+      assert.equal(await verifyEvent(signedEvent), true, "verify Nostr event failed")
+      try {
+        fetch_response = await fetch("http://localhost:8081/napi", {
+          "method": "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(signedEvent)
+        })
+        fetch_response = await fetch_response.json()
+      } catch (error) {
+        assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
+      }
+      assert.equal(fetch_response.status == "success", true, `First event was not sucessful \n${JSON.stringify(fetch_response, null, 2)}`)
+    })
+
+    it('Deploy a token using the root permissions, with invalid inital_token_admins', async function () {
+      let request_data = {
+        "app_name": "RBAC.DD_token_RBAC.deploy",
+        "app_key": appsnames.app_key,
+        "query_type": "upsert",
+        "query_object": {
+          "name": "RBAC.DD_token_RBAC.deploy",
+          "data": {
+            "variables": {
+              "TOKEN_ID": "PLACEHOLDER"
+            },
+            "value": {
+              "app_name": "DD_token_RBAC",
+              "version": "0.0.1",
+              "signing_public_key": nip19.npubEncode(public_key),
+              "operation_name": "deploy",
+              "timestamp_ms": Date.now(),
+              "operation_data": {
+                "token_name": "TEST TOKEN",
+                "token_ticker": "TEST",
+                "max_supply": "100000000000000000",
+                "limit_per_mint": "1000000000",
+                "decimals": 3,
+                "inital_token_admins": [
+                  "!@#"
+                ]
+              }
+            }
+          }
+        }
+      }
+      const JSON_code = 0x0200
+      let encoded = encode(request_data.query_object.data.value)
+      let hash = await sha256.digest(encoded)
+      let cidv1 = CID.create(1, JSON_code, hash)
+      request_data.query_object.data.variables.token_ID = String(cidv1)
+      let signedEvent = finalizeEvent({
+        kind: 1,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [
+          ['DD']
+        ],
+        content:
+          JSON.stringify(request_data),
+      }, secret_key)
+      assert.equal(await verifyEvent(signedEvent), true, "verify Nostr event failed")
+      try {
+        fetch_response = await fetch("http://localhost:8081/napi", {
+          "method": "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(signedEvent)
+        })
+        fetch_response = await fetch_response.json()
+      } catch (error) {
+        assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
+      }
+      assert.equal(fetch_response.status == "ERROR", true, `Invalid nostr key allowed in\n${JSON.stringify(fetch_response, null, 2)}`)
+    })
 
 
+    it('Deploy a token using the root permissions', async function () {
+      let request_data = {
+        "app_name": "RBAC.DD_token_RBAC.mint",
+        "app_key": appsnames.app_key,
+        "query_type": "upsert",
+        "query_object": {
+          "name": "RBAC.DD_token_RBAC.mint",
+          "data": {
+            "variables": {
+              "TOKEN_ID": first_test_token
+            },
+            "value": {
+              "token_ID" : first_test_token,
+              "app_name": "DD_token_RBAC",
+              "version": "0.0.1",
+              "nonce" : 1,
+              "signing_public_key": nip19.npubEncode(public_key),
+              "operation_name": "mint",
+              "timestamp_ms": Date.now(),
+              "operation_data": {
+                "amount" : 1000000,
+                "to_public_key" : nip19.npubEncode(public_key)
+              }
+            }
+          }
+        }
+      }
+      const JSON_code = 0x0200
+      let encoded = encode(request_data.query_object.data.value)
+      let hash = await sha256.digest(encoded)
+      let cidv1 = CID.create(1, JSON_code, hash)
+      request_data.query_object.data.variables.token_ID = String(cidv1)
+      let signedEvent = finalizeEvent({
+        kind: 1,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [
+          ['DD']
+        ],
+        content:
+          JSON.stringify(request_data),
+      }, secret_key)
+      assert.equal(await verifyEvent(signedEvent), true, "verify Nostr event failed")
+      try {
+        fetch_response = await fetch("http://localhost:8081/napi", {
+          "method": "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(signedEvent)
+        })
+        fetch_response = await fetch_response.json()
+        console.log("fetch_response")
+        console.log(fetch_response)
+      } catch (error) {
+        assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
+      }
+      assert.equal(fetch_response.status == "success", true, `First event was not sucessful \n${JSON.stringify(fetch_response, null, 2)}`)
+    })
+
+
+  })
 })

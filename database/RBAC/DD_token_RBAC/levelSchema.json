@@ -49,59 +49,83 @@
                 "title": "Generated schema for Root",
                 "type": "object",
                 "properties": {
-                    "app_name": {
-                        "type": "string"
-                    },
-                    "version": {
-                        "type": "string"
-                    },
-                    "signing_key": {
-                        "type": "string"
-                    },
-                    "token_name": {
-                        "type": "string"
-                    },
-                    "operation_name": {
-                        "type": "string"
-                    },
-                    "operation_data": {
+                    "variables": {
                         "type": "object",
                         "properties": {
-                            "tick": {
+                            "TOKEN_ID": {
                                 "type": "string"
-                            },
-                            "max_supply": {
-                                "type": "string"
-                            },
-                            "limit_per_mint": {
-                                "type": "string"
-                            },
-                            "decimals": {
-                                "type": "number"
-                            },
-                            "inital_token_admins": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
                             }
                         },
                         "required": [
-                            "tick",
-                            "max_supply",
-                            "limit_per_mint",
-                            "decimals",
-                            "inital_token_admins"
+                            "TOKEN_ID"
+                        ]
+                    },
+                    "value": {
+                        "type": "object",
+                        "properties": {
+                            "app_name": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "string"
+                            },
+                            "signing_public_key": {
+                                "type": "string"
+                            },
+                            "operation_name": {
+                                "type": "string"
+                            },
+                            "timestamp_ms": {
+                                "type": "number"
+                            },
+                            "operation_data": {
+                                "type": "object",
+                                "properties": {
+                                    "token_name": {
+                                        "type": "string"
+                                    },
+                                    "token_ticker": {
+                                        "type": "string"
+                                    },
+                                    "max_supply": {
+                                        "type": "string"
+                                    },
+                                    "limit_per_mint": {
+                                        "type": "string"
+                                    },
+                                    "decimals": {
+                                        "type": "number"
+                                    },
+                                    "inital_token_admins": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "token_name",
+                                    "token_ticker",
+                                    "max_supply",
+                                    "limit_per_mint",
+                                    "decimals",
+                                    "inital_token_admins"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "app_name",
+                            "version",
+                            "signing_public_key",
+                            "operation_name",
+                            "timestamp_ms",
+                            "operation_data"
                         ]
                     }
                 },
                 "required": [
-                    "app_name",
-                    "version",
-                    "signing_key",
-                    "token_name",
-                    "operation_name",
-                    "operation_data"
+                    "variables",
+                    "value"
                 ]
             }
         },
@@ -146,7 +170,7 @@
                     "token_ID": {
                         "type": "string"
                     },
-                    "opteraion_name": {
+                    "operation_name": {
                         "type": "string"
                     },
                     "operation_data": {
@@ -162,7 +186,7 @@
                     "signing_public_key",
                     "nonce",
                     "token_ID",
-                    "opteraion_name",
+                    "operation_name",
                     "operation_data"
                 ]
             }
@@ -170,8 +194,8 @@
         "token_balances": {
             "index_type": "indexed",
             "key_value_patterns": [
-                "public_key_to_token_balance_%${secp256k1_PUBLIC_KEY}%_%${secp256k1_PUBLIC_KEY}%",
-                "token_balence_to_public_key_%${secp256k1_PUBLIC_KEY}%_%${secp256k1_PUBLIC_KEY}%",
+                "public_key_to_token_balance_%${secp256k1_PUBLIC_KEY}%_%${TOKEN_ID}%",
+                "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%",
                 "change_log_index_%${LOG_AUTO_INCREMENT}%",
                 "change_log_count"
             ],
@@ -208,268 +232,326 @@
                 "title": "Generated schema for Root",
                 "type": "object",
                 "properties": {
-                    "value": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                      "TOKEN_ID": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "TOKEN_ID"
+                    ]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "token_ID": {
+                        "type": "string"
+                      },
+                      "token_transaction_count": {
                         "type": "number"
-                    }
+                      },
+                      "last_transaction_timestamp_ms": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "token_ID",
+                      "token_transaction_count",
+                      "last_transaction_timestamp_ms"
+                    ]
+                  }
                 },
                 "required": [
-                    "value"
+                  "variables",
+                  "value"
                 ]
-            }
+              }
         }
     },
     "functions": {
         "deploy": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Generated schema for Root",
-            "type": "object",
-            "properties": {
-              "app_name": {
-                "type": "string"
-              },
-              "version": {
-                "type": "string"
-              },
-              "signing_public_key": {
-                "type": "string"
-              },
-              "operation_name": {
-                "type": "string"
-              },
-              "timestamp_ms": {
-                "type": "number"
-              },
-              "operation_data": {
+            "JSON_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
                 "type": "object",
                 "properties": {
-                  "token_name": {
-                    "type": "string"
-                  },
-                  "token_ticker": {
-                    "type": "string"
-                  },
-                  "max_supply": {
-                    "type": "string"
-                  },
-                  "limit_per_mint": {
-                    "type": "string"
-                  },
-                  "decimals": {
-                    "type": "number"
-                  },
-                  "inital_token_admins": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
+                    "variables": {
+                        "type": "object",
+                        "properties": {
+                            "TOKEN_ID": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "TOKEN_ID"
+                        ]
+                    },
+                    "value": {
+                        "type": "object",
+                        "properties": {
+                            "app_name": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "string"
+                            },
+                            "signing_public_key": {
+                                "type": "string"
+                            },
+                            "operation_name": {
+                                "type": "string"
+                            },
+                            "timestamp_ms": {
+                                "type": "number"
+                            },
+                            "operation_data": {
+                                "type": "object",
+                                "properties": {
+                                    "token_name": {
+                                        "type": "string"
+                                    },
+                                    "token_ticker": {
+                                        "type": "string"
+                                    },
+                                    "max_supply": {
+                                        "type": "string"
+                                    },
+                                    "limit_per_mint": {
+                                        "type": "string"
+                                    },
+                                    "decimals": {
+                                        "type": "number"
+                                    },
+                                    "inital_token_admins": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "token_name",
+                                    "token_ticker",
+                                    "max_supply",
+                                    "limit_per_mint",
+                                    "decimals",
+                                    "inital_token_admins"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "app_name",
+                            "version",
+                            "signing_public_key",
+                            "operation_name",
+                            "timestamp_ms",
+                            "operation_data"
+                        ]
                     }
-                  }
                 },
                 "required": [
-                  "token_name",
-                  "token_ticker",
-                  "max_supply",
-                  "limit_per_mint",
-                  "decimals",
-                  "inital_token_admins"
+                    "variables",
+                    "value"
                 ]
-              }
-            },
-            "required": [
-              "app_name",
-              "version",
-              "signing_public_key",
-              "operation_name",
-              "timestamp_ms",
-              "operation_data"
-            ]
-          },
+            }
+        },
         "rekey": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Generated schema for Root",
-            "type": "object",
-            "properties": {
-                "app_name": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "signing_public_key": {
-                    "type": "string"
-                },
-                "nonce": {
-                    "type": "number"
-                },
-                "token_ID": {
-                    "type": "string"
-                },
-                "opteraion_name": {
-                    "type": "string"
-                },
-                "operation_data": {
-                    "type": "object",
-                    "properties": {
-                        "new_public_key": {
-                            "type": "string"
-                        }
+            "JSON_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                    "app_name": {
+                        "type": "string"
                     },
-                    "required": [
-                        "new_public_key"
-                    ]
-                }
-            },
-            "required": [
-                "app_name",
-                "version",
-                "signing_public_key",
-                "nonce",
-                "token_ID",
-                "opteraion_name",
-                "operation_data"
-            ]
+                    "version": {
+                        "type": "string"
+                    },
+                    "signing_public_key": {
+                        "type": "string"
+                    },
+                    "nonce": {
+                        "type": "number"
+                    },
+                    "token_ID": {
+                        "type": "string"
+                    },
+                    "operation_name": {
+                        "type": "string"
+                    },
+                    "operation_data": {
+                        "type": "object",
+                        "properties": {
+                            "new_public_key": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "new_public_key"
+                        ]
+                    }
+                },
+                "required": [
+                    "app_name",
+                    "version",
+                    "signing_public_key",
+                    "nonce",
+                    "token_ID",
+                    "operation_name",
+                    "operation_data"
+                ]
+            }
         },
         "mint": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Generated schema for Root",
-            "type": "object",
-            "properties": {
-                "app_name": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "signing_public_key": {
-                    "type": "string"
-                },
-                "nonce": {
-                    "type": "number"
-                },
-                "token_ID": {
-                    "type": "string"
-                },
-                "opteraion_name": {
-                    "type": "string"
-                },
-                "operation_data": {
-                    "type": "object",
-                    "properties": {
-                        "amount": {
-                            "type": "number"
-                        },
-                        "to_public_key": {
-                            "type": "string"
-                        }
+            "JSON_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                    "app_name": {
+                        "type": "string"
                     },
-                    "required": [
-                        "amount",
-                        "to_public_key"
-                    ]
-                }
-            },
-            "required": [
-                "app_name",
-                "version",
-                "signing_public_key",
-                "nonce",
-                "token_ID",
-                "opteraion_name",
-                "operation_data"
-            ]
+                    "version": {
+                        "type": "string"
+                    },
+                    "signing_public_key": {
+                        "type": "string"
+                    },
+                    "nonce": {
+                        "type": "number"
+                    },
+                    "token_ID": {
+                        "type": "string"
+                    },
+                    "operation_name": {
+                        "type": "string"
+                    },
+                    "operation_data": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "number"
+                            },
+                            "to_public_key": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "to_public_key"
+                        ]
+                    }
+                },
+                "required": [
+                    "app_name",
+                    "version",
+                    "signing_public_key",
+                    "nonce",
+                    "token_ID",
+                    "operation_name",
+                    "operation_data"
+                ]
+            }
         },
         "transfer": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Generated schema for Root",
-            "type": "object",
-            "properties": {
-                "app_name": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "signing_key": {
-                    "type": "string"
-                },
-                "nonce": {
-                    "type": "number"
-                },
-                "token_ID": {
-                    "type": "string"
-                },
-                "opteraion_name": {
-                    "type": "string"
-                },
-                "operation_data": {
-                    "type": "object",
-                    "properties": {
-                        "amount": {
-                            "type": "number"
-                        },
-                        "to_public_key": {
-                            "type": "string"
-                        }
+            "JSON_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                    "app_name": {
+                        "type": "string"
                     },
-                    "required": [
-                        "amount",
-                        "to_public_key"
-                    ]
-                }
-            },
-            "required": [
-                "app_name",
-                "version",
-                "signing_key",
-                "nonce",
-                "token_ID",
-                "opteraion_name",
-                "operation_data"
-            ]
+                    "version": {
+                        "type": "string"
+                    },
+                    "signing_key": {
+                        "type": "string"
+                    },
+                    "nonce": {
+                        "type": "number"
+                    },
+                    "token_ID": {
+                        "type": "string"
+                    },
+                    "operation_name": {
+                        "type": "string"
+                    },
+                    "operation_data": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "number"
+                            },
+                            "to_public_key": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "to_public_key"
+                        ]
+                    }
+                },
+                "required": [
+                    "app_name",
+                    "version",
+                    "signing_key",
+                    "nonce",
+                    "token_ID",
+                    "operation_name",
+                    "operation_data"
+                ]
+            }
         },
         "burn": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Generated schema for Root",
-            "type": "object",
-            "properties": {
-                "app_name": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "signing_key": {
-                    "type": "string"
-                },
-                "token_ID": {
-                    "type": "string"
-                },
-                "opteraion_name": {
-                    "type": "string"
-                },
-                "operation_data": {
-                    "type": "object",
-                    "properties": {
-                        "amount": {
-                            "type": "number"
-                        },
-                        "from_public_key": {
-                            "type": "string"
-                        }
+            "JSON_schema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "properties": {
+                    "app_name": {
+                        "type": "string"
                     },
-                    "required": [
-                        "amount",
-                        "from_public_key"
-                    ]
-                }
-            },
-            "required": [
-                "app_name",
-                "version",
-                "signing_key",
-                "token_ID",
-                "opteraion_name",
-                "operation_data"
-            ]
+                    "version": {
+                        "type": "string"
+                    },
+                    "signing_key": {
+                        "type": "string"
+                    },
+                    "token_ID": {
+                        "type": "string"
+                    },
+                    "operation_name": {
+                        "type": "string"
+                    },
+                    "operation_data": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "number"
+                            },
+                            "from_public_key": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "amount",
+                            "from_public_key"
+                        ]
+                    }
+                },
+                "required": [
+                    "app_name",
+                    "version",
+                    "signing_key",
+                    "token_ID",
+                    "operation_name",
+                    "operation_data"
+                ]
+            }
         }
     }
 }

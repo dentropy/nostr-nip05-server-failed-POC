@@ -68,6 +68,7 @@ async function initialize_app_data(dddb){
     })
 
     // Load in all the schemas even from dependencies
+    // #TODO First DD_dependency_FUNCTION
     let db_schema = JSON.parse(await fs.readFileSync('./database/levelSchema.json'))
     for (const DD_dependency of db_schema.dependencies){
         let levelSchemaFilename =  "./database/" + DD_dependency.name.split('.').join('/') + "/levelSchema.json" 
@@ -75,9 +76,6 @@ async function initialize_app_data(dddb){
         for (const DD_index of Object.keys(levelSchema.schema) ){
             db_schema.schema[DD_dependency.name + "." + DD_index] = levelSchema.schema[DD_index]
         }
-        console.log("\n\n")
-        console.log(levelSchemaFilename)
-        console.log(levelSchema)
         if(Object.keys(levelSchema).includes("functions")){
             for (const DD_index of Object.keys(levelSchema.functions) ){
                 db_schema.functions[DD_dependency.name + "." + DD_index] = levelSchema.functions[DD_index]
@@ -144,10 +142,17 @@ async function initialize_app_data(dddb){
 async function validate_schema(){
     let db_schema = JSON.parse(await fs.readFileSync('./database/levelSchema.json'))
     // let schema_ipns_lookup = {}
+
+    // #TODO Second DD_dependency_FUNCTION
     for (const DD_dependency of db_schema.dependencies){
         let levelSchema = await JSON.parse( fs.readFileSync( "./database/" + DD_dependency.name.split('.').join('/') + "/levelSchema.json" ) )
         for (const DD_index of Object.keys(levelSchema.schema) ){
             db_schema.schema[DD_dependency.name + "." + DD_index] = levelSchema.schema[DD_index]
+        }
+        if(Object.keys(levelSchema).includes("functions")){
+            for (const DD_index of Object.keys(levelSchema.functions) ){
+                db_schema.functions[DD_dependency.name + "." + DD_index] = levelSchema.functions[DD_index]
+            }
         }
     }
 
