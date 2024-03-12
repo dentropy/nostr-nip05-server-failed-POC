@@ -500,7 +500,7 @@ app.post("/napi", async function (req, res) {
                     command_JSON.query_object.data.value.datatimestamp_ms < token_state_data.last_transaction_timestamp_ms &&
                     current_timestamp_ms > command_JSON.query_object.data.value.datatimestamp_ms
                 ) {
-                    res.send({ "status": "ERROR", "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms }` })
+                    res.send({ "status": "ERROR", "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms}` })
                     return true
                 }
                 // Validate that token mint amount is valid
@@ -514,7 +514,7 @@ app.post("/napi", async function (req, res) {
                 }
                 // Validate that signing key is admin
                 let tmp_public_key = await nip19.npubEncode(String(req.body.pubkey))
-                if (!token_ID_data.operation_data.inital_token_admins.includes(tmp_public_key)){
+                if (!token_ID_data.operation_data.inital_token_admins.includes(tmp_public_key)) {
                     res.send({
                         "status": "ERROR",
                         "Reason": "Invalid mint amount",
@@ -526,16 +526,16 @@ app.post("/napi", async function (req, res) {
                 let query_result = null;
                 let tmp_input_data = null;
                 try {
-                    console.log("token_state_data.token_transaction_count")
-                    console.log(token_state_data.token_transaction_count)
-                    console.log(command_JSON.query_object.data.value.token_ID)
-                    console.log(req.body.pubkey)
-                    console.log(token_state_data.token_transaction_count)
+                    // console.log("token_state_data.token_transaction_count")
+                    // console.log(token_state_data.token_transaction_count)
+                    // console.log(command_JSON.query_object.data.value.token_ID)
+                    // console.log(req.body.pubkey)
+                    // console.log(token_state_data.token_transaction_count)
                     tmp_input_data = {
                         "variables": {
                             "TOKEN_ID": command_JSON.query_object.data.value.token_ID,
-                            "TOKEN_TRANSACTION_NUM" : token_state_data.token_transaction_count,
-                            "secp256k1_PUBLIC_KEY" : req.body.pubkey
+                            "TOKEN_TRANSACTION_NUM": token_state_data.token_transaction_count,
+                            "secp256k1_PUBLIC_KEY": req.body.pubkey
                         },
                         "value": {
                             "token_ID": command_JSON.query_object.data.value.token_ID,
@@ -559,7 +559,7 @@ app.post("/napi", async function (req, res) {
                         "status": "ERROR",
                         "Reason": "Could not store transaction",
                         "error": `${error}`,
-                        "data" : `${JSON.stringify(tmp_input_data)}`
+                        "data": `${JSON.stringify(tmp_input_data)}`
                     })
                     return true
                 }
@@ -567,11 +567,11 @@ app.post("/napi", async function (req, res) {
                 let query_object = null;
                 try {
                     query_object = {
-                        "name": "RBAC.DD_token_RBAC.token_state",
+                        "name": "RBAC.DD_token_RBAC.token_balances",
                         "data": {
                             "variables": {
                                 TOKEN_ID: command_JSON.query_object.data.value.token_ID,
-                                secp256k1_PUBLIC_KEY : req.body.pubkey
+                                secp256k1_PUBLIC_KEY: req.body.pubkey
                             }
                         }
                     }
@@ -582,9 +582,9 @@ app.post("/napi", async function (req, res) {
                     )
                     try {
                         // Well you gotta get the balance first before we can update it
-                        
+
                         // Update balence of who we are minting tokens for
-                        query_object.data.values = {value :command_JSON.query_object.data.value.operation_data.amount }
+                        query_object.data.values = { value: command_JSON.query_object.data.value.operation_data.amount }
                         let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
                         query_result = await upsert_using_key_value_patterns_and_JSONSchema(
                             level_schema_config.CID_store,
@@ -596,7 +596,7 @@ app.post("/napi", async function (req, res) {
                     } catch (error) {
                         res.send({
                             "status": "ERROR",
-                            "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions",
+                            "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions Minting",
                             "error": `${error}`,
                         })
                         return true
@@ -608,10 +608,10 @@ app.post("/napi", async function (req, res) {
                         "data": {
                             "variables": {
                                 TOKEN_ID: command_JSON.query_object.data.value.token_ID,
-                                secp256k1_PUBLIC_KEY : req.body.pubkey
+                                secp256k1_PUBLIC_KEY: req.body.pubkey
                             },
-                            "values" : {
-                                "value" : command_JSON.query_object.data.value.operation_data.amount
+                            "value": {
+                                "value": command_JSON.query_object.data.value.operation_data.amount
                             }
                         }
                     }
@@ -623,14 +623,41 @@ app.post("/napi", async function (req, res) {
                         query_object.data,
                         level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].upsert_json_schema
                     )
-                    if(query_result != true){
+                    if (query_result != true) {
                         res.send({
                             "status": "ERROR",
-                            "Reason": "Could not update token_state",
-                            "error": mah_result,
+                            "Reason": "Could not update token_balances",
+                            "error": query_result,
                         })
                         return true
                     }
+                }
+                // Check the balance
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_balances",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                        }
+                    }
+                }
+                try {
+                    let token_balance_data = await get_query(
+                        level_schema_config.dddb,
+                        level_schema_config.db_schema,
+                        query_object
+                    )
+                    console.log("token_balance_data")
+                    console.log(token_balance_data)
+                } catch (error) {
+                    res.send({
+                        "status": "ERROR",
+                        "Reason": "Balance did not update",
+                        "error": error,
+                    })
+                    return true
+                    
                 }
                 // Update token_state
                 token_state_data.token_transaction_count += 1
@@ -643,14 +670,14 @@ app.post("/napi", async function (req, res) {
                         current_app_store,
                         level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].key_value_patterns,
                         {
-                            variables : {
-                                TOKEN_ID : token_state_data.token_ID
+                            variables: {
+                                TOKEN_ID: token_state_data.token_ID
                             },
-                            value : token_state_data
+                            value: token_state_data
                         },
                         level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].upsert_json_schema
                     )
-                    if(mah_result != true){
+                    if (mah_result != true) {
                         res.send({
                             "status": "ERROR",
                             "Reason": "Could not update token_state",
@@ -673,8 +700,8 @@ app.post("/napi", async function (req, res) {
                 //     token_state: token_state_data
                 // })
                 res.send({
-                    "status" : "success",
-                    "Description" : "Looks like we did it"
+                    "status": "success",
+                    "Description": "Looks like we did it"
                 })
                 return true
             }
@@ -682,62 +709,53 @@ app.post("/napi", async function (req, res) {
     }
     if (command_JSON.query_object.name == "RBAC.DD_token_RBAC.transfer") {
         if (command_JSON.query_type == "upsert") {
-                // Perform JSON_schema test on function data
-                const ajv = new Ajv()
-                const JSONSchema_validator = ajv.compile(level_schema_config.db_schema.functions['RBAC.DD_token_RBAC.mint'].JSON_schema)
-                const JSONSchema_test = JSONSchema_validator(command_JSON.query_object.data.value)
-                if (!JSONSchema_test) {
-                    res.send({
-                        "status": "ERROR",
-                        "Reason": "JSON_schema Test failed",
-                        "data": {
-                            JSON_schema: level_schema_config.db_schema.functions['RBAC.DD_token_RBAC.deploy'].JSON_schema,
-                            JSON_data: command_JSON.query_object.data
-                        }
-                    })
-                    return true
-                }
-                // Validate version
-                if (command_JSON.query_object.data.value.version != "0.0.1") {
-                    res.send({ "status": "ERROR", "Reason": "Wrong version number, please set to 0.0.1" })
-                    return true
-                }
-                // Validate app_name
-                if (command_JSON.query_object.data.value.app_name != "DD_token_RBAC") {
-                    res.send({ "status": "ERROR", "Reason": "Please set app_name to DD_token" })
-                    return true
-                }
-                // Same signing key as nostr event
-                if (req.body.pubkey != await nip19.decode(command_JSON.query_object.data.value.signing_public_key).data) {
-                    res.send({ "status": "ERROR", "Reason": "data.signing_public_key must be the same as the address sending the nostr event" })
-                    return true
-                }
-                // Check if token_ID exists and validate if it exists
-                let token_ID_data = null;
-                try {
-                    let query_object = {
-                        "name": "RBAC.DD_token_RBAC.token_IDs",
-                        "data": {
-                            "variables": {
-                                TOKEN_ID: command_JSON.query_object.data.value.token_ID
-                            }
+            // Perform JSON_schema test on function data
+            const ajv = new Ajv()
+            const JSONSchema_validator = ajv.compile(level_schema_config.db_schema.functions['RBAC.DD_token_RBAC.mint'].JSON_schema)
+            const JSONSchema_test = JSONSchema_validator(command_JSON.query_object.data.value)
+            if (!JSONSchema_test) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "JSON_schema Test failed",
+                    "data": {
+                        JSON_schema: level_schema_config.db_schema.functions['RBAC.DD_token_RBAC.deploy'].JSON_schema,
+                        JSON_data: command_JSON.query_object.data
+                    }
+                })
+                return true
+            }
+            // Validate version
+            if (command_JSON.query_object.data.value.version != "0.0.1") {
+                res.send({ "status": "ERROR", "Reason": "Wrong version number, please set to 0.0.1" })
+                return true
+            }
+            // Validate app_name
+            if (command_JSON.query_object.data.value.app_name != "DD_token_RBAC") {
+                res.send({ "status": "ERROR", "Reason": "Please set app_name to DD_token" })
+                return true
+            }
+            // Same signing key as nostr event
+            if (req.body.pubkey != await nip19.decode(command_JSON.query_object.data.value.signing_public_key).data) {
+                res.send({ "status": "ERROR", "Reason": "data.signing_public_key must be the same as the address sending the nostr event" })
+                return true
+            }
+            // Check if token_ID exists and validate if it exists
+            let token_ID_data = null;
+            try {
+                let query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_IDs",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID
                         }
                     }
-                    token_ID_data = await get_query(
-                        level_schema_config.dddb,
-                        level_schema_config.db_schema,
-                        query_object
-                    )
-                    if (Object.keys(token_ID_data).length == 0 || token_ID_data == null) {
-                        res.send({
-                            "status": "ERROR",
-                            "Reason": "Unable to find token_ID",
-                            "description": `${command_JSON.query_object.data.value.token_ID}`,
-                            "data": token_ID_data
-                        })
-                        return true
-                    }
-                } catch (error) {
+                }
+                token_ID_data = await get_query(
+                    level_schema_config.dddb,
+                    level_schema_config.db_schema,
+                    query_object
+                )
+                if (Object.keys(token_ID_data).length == 0 || token_ID_data == null) {
                     res.send({
                         "status": "ERROR",
                         "Reason": "Unable to find token_ID",
@@ -746,46 +764,150 @@ app.post("/napi", async function (req, res) {
                     })
                     return true
                 }
-                // Get the token_state
-                let token_state_data = null;
-                try {
-                    let query_object = {
-                        "name": "RBAC.DD_token_RBAC.token_state",
-                        "data": {
-                            "variables": {
-                                TOKEN_ID: command_JSON.query_object.data.value.token_ID
-                            }
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Unable to find token_ID",
+                    "description": `${command_JSON.query_object.data.value.token_ID}`,
+                    "data": token_ID_data
+                })
+                return true
+            }
+            // Get the token_state
+            let token_state_data = null;
+            try {
+                let query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_state",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID
                         }
                     }
-                    token_state_data = await get_query(
-                        level_schema_config.dddb,
-                        level_schema_config.db_schema,
-                        query_object
-                    )
-                } catch (error) {
-                    res.send({
-                        "status": "ERROR",
-                        "Reason": "Unable to get token_state using token_ID",
-                        "data": token_state_data,
-                        "description": `${command_JSON.query_object.data.value.token_ID}`,
-                        "error": error
-                    })
-                    return true
                 }
-                // Validate Timestamp
-                let current_timestamp_ms = Date.now(); + (1000 * 10)
-                if (
-                    command_JSON.query_object.data.value.datatimestamp_ms < token_state_data.last_transaction_timestamp_ms &&
-                    current_timestamp_ms > command_JSON.query_object.data.value.datatimestamp_ms
-                ) {
-                    res.send({ "status": "ERROR", "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms }` })
-                    return true
+                token_state_data = await get_query(
+                    level_schema_config.dddb,
+                    level_schema_config.db_schema,
+                    query_object
+                )
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Unable to get token_state using token_ID",
+                    "data": token_state_data,
+                    "description": `${command_JSON.query_object.data.value.token_ID}`,
+                    "error": error
+                })
+                return true
+            }
+            // Validate Timestamp
+            let current_timestamp_ms = Date.now(); + (1000 * 10)
+            if (
+                command_JSON.query_object.data.value.datatimestamp_ms < token_state_data.last_transaction_timestamp_ms &&
+                current_timestamp_ms > command_JSON.query_object.data.value.datatimestamp_ms
+            ) {
+                res.send({ "status": "ERROR", "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms}` })
+                return true
+            }
+            // Get sender balance
+            let query_object = null;
+            let current_token_balence = null
+            try {
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_balances",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                        }
+                    }
                 }
-                // Get sender balance
-                let query_object = null;
+                current_token_balence = await get_query(
+                    level_schema_config.dddb,
+                    level_schema_config.db_schema,
+                    query_object
+                )
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Could not get balance",
+                    "error": `${error}`,
+                    "data" : query_object
+                })
+                return true
+            }
+            // Validate their ballance is sufficent
+            if (current_token_balence.value < command_JSON.query_object.data.value.operation_data.amount) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Insufficent Funds",
+                    "error": `${error}`
+                })
+                return true
+            }
+            // Update sender balance
+            try {
+                query_object.data.values = {
+                    value: current_token_balence.value -= command_JSON.query_object.data.value.operation_data.amount
+                }
+                let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
+                query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    level_schema_config.CID_store,
+                    current_app_store,
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].key_value_patterns,
+                    query_object.data,
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].upsert_json_schema
+                )
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Can't update sender balance",
+                    "error": `${error}`
+                })
+                return true
+            }
+            // Get to balance
+            try {
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_balances",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                        }
+                    }
+                }
+                current_token_balence = await get_query(
+                    level_schema_config.dddb,
+                    level_schema_config.db_schema,
+                    query_object
+                )
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Could not Get Balance 2",
+                    "error": `${error}`
+                })
+                return true
+            }
+            // Update Balance of who they are sending to
+            try {
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_state",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                        }
+                    }
+                }
+                token_state_data = await get_query(
+                    level_schema_config.dddb,
+                    level_schema_config.db_schema,
+                    query_object
+                )
                 try {
-                    // Update balence of who we are minting tokens for
-                    query_object.data.values = {value :command_JSON.query_object.data.value.operation_data.amount }
+                    // Update balence of who we are sending tokens to
+                    query_object.data.values = { value: command_JSON.query_object.data.value.operation_data.amount }
                     let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
                     query_result = await upsert_using_key_value_patterns_and_JSONSchema(
                         level_schema_config.CID_store,
@@ -797,71 +919,74 @@ app.post("/napi", async function (req, res) {
                 } catch (error) {
                     res.send({
                         "status": "ERROR",
-                        "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions",
-                        "error": `${error}`
+                        "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions to send tokens to someone",
+                        "error": `${error}`,
                     })
                     return true
                 }
-                // Validate their ballance is sufficent
-                if(query_result.value < command_JSON.query_object.data.value.operation_data.amount)
-                {
-                    res.send({
-                        "status": "ERROR",
-                        "Reason": "Insufficent Funds",
-                        "error": `${error}`
-                    })
-                    return true
-                }
-                // Update their balance
-
-                // Get to balance
-
-                // Update Balance of who they are sending to
-                try {
-                    query_object = {
-                        "name": "RBAC.DD_token_RBAC.token_state",
-                        "data": {
-                            "variables": {
-                                TOKEN_ID: command_JSON.query_object.data.value.token_ID,
-                                secp256k1_PUBLIC_KEY : req.body.pubkey
-                            }
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions to send tokens to someone second time",
+                    "error": `${error}`,
+                })
+                return true
+            }
+            // Update someone elses balence
+            try {
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_balances",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: command_JSON.query_object.data.value.operation_data.to_public_key
                         }
                     }
-                    token_state_data = await get_query(
-                        level_schema_config.dddb,
-                        level_schema_config.db_schema,
-                        query_object
-                    )
-                    try {
-                        // Update balence of who we are minting tokens for
-                        query_object.data.values = {value :command_JSON.query_object.data.value.operation_data.amount }
-                        let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
-                        query_result = await upsert_using_key_value_patterns_and_JSONSchema(
-                            level_schema_config.CID_store,
-                            current_app_store,
-                            level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].key_value_patterns,
-                            query_object.data,
-                            level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].upsert_json_schema
-                        )
-                    } catch (error) {
-                        res.send({
-                            "status": "ERROR",
-                            "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions",
-                            "error": `${error}`,
-                        })
-                        return true
+                }
+                token_state_data = await get_query(
+                    level_schema_config.dddb,
+                    level_schema_config.db_schema,
+                    query_object
+                )
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_balances",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                        },
+                        "values": {
+                            "value": command_JSON.query_object.data.value.operation_data.amount
+                        }
                     }
-                } catch (error) {
-                    // Insert user balnace for this token
+                }
+                let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
+                query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    level_schema_config.CID_store,
+                    current_app_store,
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].key_value_patterns,
+                    query_object.data,
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].upsert_json_schema
+                )
+                if (query_result != true) {
+                    res.send({
+                        "status": "ERROR",
+                        "Reason": "Could not update token_balances",
+                        "error": mah_result,
+                    })
+                    return true
+                }
+            } catch (error) {
+                try {
                     query_object = {
                         "name": "RBAC.DD_token_RBAC.token_balances",
                         "data": {
                             "variables": {
                                 TOKEN_ID: command_JSON.query_object.data.value.token_ID,
-                                secp256k1_PUBLIC_KEY : req.body.pubkey
+                                secp256k1_PUBLIC_KEY: req.body.pubkey
                             },
-                            "values" : {
-                                "value" : command_JSON.query_object.data.value.operation_data.amount
+                            "values": {
+                                "value": command_JSON.query_object.data.value.operation_data.amount
                             }
                         }
                     }
@@ -873,102 +998,110 @@ app.post("/napi", async function (req, res) {
                         query_object.data,
                         level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].upsert_json_schema
                     )
-                    if(query_result != true){
+                    if (query_result != true) {
                         res.send({
                             "status": "ERROR",
-                            "Reason": "Could not update token_state",
+                            "Reason": "Could not update token_balances",
                             "error": mah_result,
                         })
                         return true
                     }
-                }
-                // FIX ABOVE
-
-
-
-
-
-
-
-
-
-                // Store Transactions
-                let query_result = null;
-                let tmp_input_data = null;
-                try {
-                    console.log("token_state_data.token_transaction_count")
-                    console.log(token_state_data.token_transaction_count)
-                    console.log(command_JSON.query_object.data.value.token_ID)
-                    console.log(req.body.pubkey)
-                    console.log(token_state_data.token_transaction_count)
-                    tmp_input_data = {
-                        "variables": {
-                            "TOKEN_ID": command_JSON.query_object.data.value.token_ID,
-                            "TOKEN_TRANSACTION_NUM" : token_state_data.token_transaction_count,
-                            "secp256k1_PUBLIC_KEY" : req.body.pubkey
-                        },
-                        "value": {
-                            "token_ID": command_JSON.query_object.data.value.token_ID,
-                            "token_transaction_count": token_state_data.token_transaction_count,
-                            "last_transaction_timestamp_ms": command_JSON.query_object.data.value.timestamp_ms
-
-                        }
-                    }
-                    console.log("tmp_input_data")
-                    console.log(tmp_input_data)
-                    let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_transactions"], { valueEncoding: 'json' })
-                    query_result = await upsert_using_key_value_patterns_and_JSONSchema(
-                        level_schema_config.CID_store,
-                        current_app_store,
-                        level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_transactions"].key_value_patterns,
-                        tmp_input_data,
-                        level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].upsert_json_schema
-                    )
                 } catch (error) {
                     res.send({
                         "status": "ERROR",
-                        "Reason": "Could not store transaction",
+                        "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions for the reciever",
                         "error": `${error}`,
-                        "data" : `${JSON.stringify(tmp_input_data)}`
                     })
                     return true
                 }
-                // Update token_state
-                token_state_data.token_transaction_count += 1
-                token_state_data.last_transaction_timestamp_ms = command_JSON.query_object.data.value.timestamp_ms
-                try {
-                    console.log("I AM HERE")
-                    let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_state"], { valueEncoding: 'json' })
-                    let mah_result = await upsert_using_key_value_patterns_and_JSONSchema(
-                        level_schema_config.CID_store,
-                        current_app_store,
-                        level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].key_value_patterns,
-                        {
-                            variables : {
-                                TOKEN_ID : token_state_data.token_ID
-                            },
-                            value : token_state_data
-                        },
-                        level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].upsert_json_schema
-                    )
-                    if(mah_result != true){
-                        res.send({
-                            "status": "ERROR",
-                            "Reason": "Could not update token_state",
-                            "error": mah_result,
-                        })
-                        return true
+            }
+            // FIX ABOVE
+
+
+
+
+
+
+
+
+
+            // Store Transactions
+            let query_result = null;
+            let tmp_input_data = null;
+            try {
+                console.log("token_state_data.token_transaction_count")
+                console.log(token_state_data.token_transaction_count)
+                console.log(command_JSON.query_object.data.value.token_ID)
+                console.log(req.body.pubkey)
+                console.log(token_state_data.token_transaction_count)
+                tmp_input_data = {
+                    "variables": {
+                        "TOKEN_ID": command_JSON.query_object.data.value.token_ID,
+                        "TOKEN_TRANSACTION_NUM": token_state_data.token_transaction_count,
+                        "secp256k1_PUBLIC_KEY": req.body.pubkey
+                    },
+                    "value": {
+                        "token_ID": command_JSON.query_object.data.value.token_ID,
+                        "token_transaction_count": token_state_data.token_transaction_count,
+                        "last_transaction_timestamp_ms": command_JSON.query_object.data.value.timestamp_ms
+
                     }
-                    console.log("mah_result mah_result")
-                    console.log(JSON.stringify(mah_result))
-                } catch (error) {
+                }
+                console.log("tmp_input_data")
+                console.log(tmp_input_data)
+                let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_transactions"], { valueEncoding: 'json' })
+                query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    level_schema_config.CID_store,
+                    current_app_store,
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_transactions"].key_value_patterns,
+                    tmp_input_data,
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].upsert_json_schema
+                )
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Could not store transaction",
+                    "error": `${error}`,
+                    "data": `${JSON.stringify(tmp_input_data)}`
+                })
+                return true
+            }
+            // Update token_state
+            token_state_data.token_transaction_count += 1
+            token_state_data.last_transaction_timestamp_ms = command_JSON.query_object.data.value.timestamp_ms
+            try {
+                console.log("I AM HERE")
+                let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_state"], { valueEncoding: 'json' })
+                let mah_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    level_schema_config.CID_store,
+                    current_app_store,
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].key_value_patterns,
+                    {
+                        variables: {
+                            TOKEN_ID: token_state_data.token_ID
+                        },
+                        value: token_state_data
+                    },
+                    level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_state"].upsert_json_schema
+                )
+                if (mah_result != true) {
                     res.send({
                         "status": "ERROR",
                         "Reason": "Could not update token_state",
-                        "error": error,
+                        "error": mah_result,
                     })
                     return true
                 }
+                console.log("mah_result mah_result")
+                console.log(JSON.stringify(mah_result))
+            } catch (error) {
+                res.send({
+                    "status": "ERROR",
+                    "Reason": "Could not update token_state",
+                    "error": error,
+                })
+                return true
+            }
         }
     }
 
@@ -1000,6 +1133,33 @@ app.post('/admin', async function (req, res) {
         res.send(req.body)
     } catch (err) {
         res.send(err)
+    }
+})
+
+app.post('/get_balance', async function (req, res) {
+    // Check if coupon code if valid and what domains it supports
+    // Claim coupon code
+
+
+    console.log("\n\n")
+    console.log("Request to /get_balance")
+    console.log(req.body)
+    try {
+        let mah_CID = await get_query(
+            level_schema_config.dddb,
+            level_schema_config.db_schema,
+            req.body
+        )
+        res.send(mah_CID)
+        return true
+    } catch (error) {
+        console.log(error)
+        res.send({
+            "status" : "error",
+            "description" : "Could not resolve query",
+            "error" : error
+        })
+        return true
     }
 })
 

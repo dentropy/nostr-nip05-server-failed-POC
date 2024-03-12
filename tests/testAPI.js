@@ -366,7 +366,7 @@ describe('Test auth on API', async function () {
     })
 
 
-    it('Deploy a token using the root permissions', async function () {
+    it('Mint a token', async function () {
       let request_data = {
         "app_name": "RBAC.DD_token_RBAC.mint",
         "app_key": appsnames.app_key,
@@ -378,16 +378,16 @@ describe('Test auth on API', async function () {
               "TOKEN_ID": first_test_token
             },
             "value": {
-              "token_ID" : first_test_token,
+              "token_ID": first_test_token,
               "app_name": "DD_token_RBAC",
               "version": "0.0.1",
-              "nonce" : 1,
+              "nonce": 1,
               "signing_public_key": nip19.npubEncode(public_key),
               "operation_name": "mint",
               "timestamp_ms": Date.now(),
               "operation_data": {
-                "amount" : 1000000,
-                "to_public_key" : nip19.npubEncode(public_key)
+                "amount": 1000000,
+                "to_public_key": nip19.npubEncode(public_key)
               }
             }
           }
@@ -423,6 +423,92 @@ describe('Test auth on API', async function () {
         assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
       }
       assert.equal(fetch_response.status == "success", true, `First event was not sucessful \n${JSON.stringify(fetch_response, null, 2)}`)
+    })
+
+
+
+    it('Transfer a token', async function () {
+      let request_data = {
+        "app_name": "RBAC.DD_token_RBAC.transfer",
+        "app_key": appsnames.app_key,
+        "query_type": "upsert",
+        "query_object": {
+          "name": "RBAC.DD_token_RBAC.transfer",
+          "data": {
+            "variables": {
+              "TOKEN_ID": first_test_token
+            },
+            "value": {
+              "token_ID": first_test_token,
+              "app_name": "DD_token_RBAC",
+              "version": "0.0.1",
+              "nonce": 2,
+              "signing_public_key": nip19.npubEncode(public_key),
+              "operation_name": "transfer",
+              "timestamp_ms": Date.now(),
+              "operation_data": {
+                "amount": 1000,
+                "to_public_key": nip19.npubEncode(public_key2)
+              }
+            }
+          }
+        }
+      }
+      const JSON_code = 0x0200
+      let encoded = encode(request_data.query_object.data.value)
+      let hash = await sha256.digest(encoded)
+      let cidv1 = CID.create(1, JSON_code, hash)
+      request_data.query_object.data.variables.token_ID = String(cidv1)
+      let signedEvent = finalizeEvent({
+        kind: 1,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [
+          ['DD']
+        ],
+        content:
+          JSON.stringify(request_data),
+      }, secret_key)
+      assert.equal(await verifyEvent(signedEvent), true, "verify Nostr event failed")
+      try {
+        fetch_response = await fetch("http://localhost:8081/napi", {
+          "method": "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(signedEvent)
+        })
+        fetch_response = await fetch_response.json()
+        // console.log("fetch_response")
+        // console.log(fetch_response)
+      } catch (error) {
+        assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
+      }
+      assert.equal(fetch_response.status == "success", true, `First event was not sucessful \n${JSON.stringify(fetch_response, null, 2)}`)
+    })
+
+    it("first Balance", async function() {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "name": "RBAC.DD_token_RBAC.token_balances",
+          "data": {
+            "variables": {
+              TOKEN_ID: first_test_token,
+              secp256k1_PUBLIC_KEY: public_key
+            }
+          }
+        })
+      };
+  
+      // Send the POST request
+      fetch_response = await fetch("http://localhost:8081/get_balance", options);
+      fetch_response = await fetch_response.json()
+      console.log("Balence Below")
+      console.log(fetch_response)
+      assert.equal(fetch_response.value, 1000000)
     })
 
 

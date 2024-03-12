@@ -213,14 +213,38 @@
                 "title": "Generated schema for Root",
                 "type": "object",
                 "properties": {
-                    "value": {
+                  "variables": {
+                    "type": "object",
+                    "properties": {
+                      "TOKEN_ID": {
+                        "type": "string"
+                      },
+                      "secp256k1_PUBLIC_KEY": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "TOKEN_ID",
+                      "secp256k1_PUBLIC_KEY"
+                    ]
+                  },
+                  "value": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
                         "type": "number"
-                    }
+                      }
+                    },
+                    "required": [
+                      "value"
+                    ]
+                  }
                 },
                 "required": [
-                    "value"
+                  "variables",
+                  "value"
                 ]
-            }
+              }
         },
         "token_state": {
             "index_type": "caching",
