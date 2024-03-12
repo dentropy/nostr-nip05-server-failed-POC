@@ -168,7 +168,10 @@ app.post("/napi", async function (req, res) {
                     res.send({ "status": "success" })
                     return true
                 } catch (error) {
-                    res.send({ "status": "error", "description": "generate_nostr_dot_json(level_schema_config) could not build correctly" })
+                    res.send({ 
+                        "status": "error", 
+                        "description": "generate_nostr_dot_json(level_schema_config) could not build correctly" 
+                    })
                     return true
                 }
             } else {
@@ -179,11 +182,17 @@ app.post("/napi", async function (req, res) {
                     const JSONSchema_validator = ajv.compile(level_schema_config.db_schema.schema["apps.nostr_NIP05_relay_map.NIP05_internet_identifier"].upsert_json_schema)
                     const JSONSchema_test = JSONSchema_validator(command_JSON.query_object.data)
                     if (!JSONSchema_test) {
-                        res.send({ "status": "ERROR", "Reason": "JSONSchema Test failed" })
+                        res.send({ 
+                            "status": "ERROR", 
+                            "Reason": "JSONSchema Test failed" 
+                        })
                         return true
                     }
                     if (command_JSON.query_object.data.variables.NOSTR_PUBLIC_KEY != req.body.pubkey) {
-                        res.send({ "status": "ERROR", "Reason": "Bro your signing key and variable NOSTR_PUBLIC_KEY don't match" })
+                        res.send({ 
+                            "status": "ERROR", 
+                            "Reason": "Bro your signing key and variable NOSTR_PUBLIC_KEY don't match" 
+                        })
                         return true
                     }
                     if (command_JSON.query_object.data.value.NOSTR_PUBLIC_KEY != req.body.pubkey) {
@@ -220,15 +229,25 @@ app.post("/napi", async function (req, res) {
                             level_schema_config.db_schema.schema["apps.nostr_NIP05_relay_map.NIP05_internet_identifier"].upsert_json_schema
                         )
                     } catch (error) {
-                        res.send({ "status": "ERROR", "Reason": "problem with query_object", "description": error })
+                        res.send({ 
+                            "status": "ERROR", 
+                            "Reason": "problem with query_object", 
+                            "description": error 
+                        })
                         return true
                     }
                     try {
                         await generate_nostr_dot_json(level_schema_config, command_JSON)
-                        res.send({ "status": "success", "description": "Upserted upsert_using_key_value_patterns_and_JSONSchema correctly" })
+                        res.send({ 
+                            "status": "success", 
+                            "description": "Upserted upsert_using_key_value_patterns_and_JSONSchema correctly" 
+                        })
                         return true
                     } catch (error) {
-                        res.send({ "status": "error", "description": "generate_nostr_dot_json(level_schema_config) could not build correctly" })
+                        res.send({ 
+                            "status": "error", 
+                            "description": "generate_nostr_dot_json(level_schema_config) could not build correctly" 
+                        })
                         return true
                     }
                 }
@@ -278,17 +297,26 @@ app.post("/napi", async function (req, res) {
                 }
                 // Validate version
                 if (command_JSON.query_object.data.value.version != "0.0.1") {
-                    res.send({ "status": "ERROR", "Reason": "Wrong version number, please set to 0.0.1" })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": "Wrong version number, please set to 0.0.1" 
+                    })
                     return true
                 }
                 // Validate app_name
                 if (command_JSON.query_object.data.value.app_name != "DD_token_RBAC") {
-                    res.send({ "status": "ERROR", "Reason": "Please set app_name to DD_token" })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": "Please set app_name to DD_token" 
+                    })
                     return true
                 }
                 // Same signing key as nostr event
                 if (req.body.pubkey != await nip19.decode(command_JSON.query_object.data.value.signing_public_key).data) {
-                    res.send({ "status": "ERROR", "Reason": "data.signing_public_key must be the same as the address sending the nostr event" })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": "data.signing_public_key must be the same as the address sending the nostr event" 
+                    })
                     return true
                 }
                 // Validate Timestamp
@@ -298,7 +326,9 @@ app.post("/napi", async function (req, res) {
                     command_JSON.query_object.data.datatimestamp_ms < current_timestamp_ms - ms_offset &&
                     command_JSON.query_object.data.datatimestamp_ms > current_timestamp_ms + ms_offset
                 ) {
-                    res.send({ "status": "ERROR", "Reason": "That timestamp is either a day in the past or future, please try again" })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": "That timestamp is either a day in the past or future, please try again" })
                     return true
                 }
                 // Validate that inital_token_admins are all nostr keys
@@ -421,17 +451,25 @@ app.post("/napi", async function (req, res) {
                 }
                 // Validate version
                 if (command_JSON.query_object.data.value.version != "0.0.1") {
-                    res.send({ "status": "ERROR", "Reason": "Wrong version number, please set to 0.0.1" })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": "Wrong version number, please set to 0.0.1" })
                     return true
                 }
                 // Validate app_name
                 if (command_JSON.query_object.data.value.app_name != "DD_token_RBAC") {
-                    res.send({ "status": "ERROR", "Reason": "Please set app_name to DD_token" })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": "Please set app_name to DD_token" 
+                    })
                     return true
                 }
                 // Same signing key as nostr event
                 if (req.body.pubkey != await nip19.decode(command_JSON.query_object.data.value.signing_public_key).data) {
-                    res.send({ "status": "ERROR", "Reason": "data.signing_public_key must be the same as the address sending the nostr event" })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": "data.signing_public_key must be the same as the address sending the nostr event" 
+                    })
                     return true
                 }
                 // Check if token_ID exists and validate if it exists
@@ -500,7 +538,9 @@ app.post("/napi", async function (req, res) {
                     command_JSON.query_object.data.value.datatimestamp_ms < token_state_data.last_transaction_timestamp_ms &&
                     current_timestamp_ms > command_JSON.query_object.data.value.datatimestamp_ms
                 ) {
-                    res.send({ "status": "ERROR", "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms}` })
+                    res.send({ 
+                        "status": "ERROR", 
+                        "Reason": `That timestamp is not larger than ${token_state_data.last_transaction_timestamp_ms} and less than ${tcurrent_timestamp_ms}` })
                     return true
                 }
                 // Validate that token mint amount is valid
@@ -626,7 +666,7 @@ app.post("/napi", async function (req, res) {
                     if (query_result != true) {
                         res.send({
                             "status": "ERROR",
-                            "Reason": "Could not update token_balances",
+                            "Reason": "Could not update token_balances 1",
                             "error": query_result,
                         })
                         return true
@@ -726,17 +766,26 @@ app.post("/napi", async function (req, res) {
             }
             // Validate version
             if (command_JSON.query_object.data.value.version != "0.0.1") {
-                res.send({ "status": "ERROR", "Reason": "Wrong version number, please set to 0.0.1" })
+                res.send({ 
+                    "status": "ERROR", 
+                    "Reason": "Wrong version number, please set to 0.0.1" 
+                })
                 return true
             }
             // Validate app_name
             if (command_JSON.query_object.data.value.app_name != "DD_token_RBAC") {
-                res.send({ "status": "ERROR", "Reason": "Please set app_name to DD_token" })
+                res.send({ 
+                    "status": "ERROR", 
+                    "Reason": "Please set app_name to DD_token" 
+                })
                 return true
             }
             // Same signing key as nostr event
             if (req.body.pubkey != await nip19.decode(command_JSON.query_object.data.value.signing_public_key).data) {
-                res.send({ "status": "ERROR", "Reason": "data.signing_public_key must be the same as the address sending the nostr event" })
+                res.send({ 
+                    "status": "ERROR", 
+                    "Reason": "data.signing_public_key must be the same as the address sending the nostr event" 
+                })
                 return true
             }
             // Check if token_ID exists and validate if it exists
@@ -846,11 +895,20 @@ app.post("/napi", async function (req, res) {
             }
             // Update sender balance
             try {
-                query_object.data.values = {
-                    value: current_token_balence.value -= command_JSON.query_object.data.value.operation_data.amount
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_balances",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                        },
+                        "value" : {
+                            "value" : current_token_balence.value -= command_JSON.query_object.data.value.operation_data.amount
+                        }
+                    }
                 }
                 let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
-                query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                let query_result = await upsert_using_key_value_patterns_and_JSONSchema(
                     level_schema_config.CID_store,
                     current_app_store,
                     level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].key_value_patterns,
@@ -907,9 +965,20 @@ app.post("/napi", async function (req, res) {
                 )
                 try {
                     // Update balence of who we are sending tokens to
-                    query_object.data.values = { value: command_JSON.query_object.data.value.operation_data.amount }
+                    query_object = {
+                        "name": "RBAC.DD_token_RBAC.token_state",
+                        "data": {
+                            "variables": {
+                                TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                                secp256k1_PUBLIC_KEY: req.body.pubkey
+                            },
+                            "value" : {
+                                "value" : command_JSON.query_object.data.value.operation_data.amount
+                            }
+                        }
+                    }
                     let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
-                    query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    let query_result = await upsert_using_key_value_patterns_and_JSONSchema(
                         level_schema_config.CID_store,
                         current_app_store,
                         level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].key_value_patterns,
@@ -971,7 +1040,7 @@ app.post("/napi", async function (req, res) {
                 if (query_result != true) {
                     res.send({
                         "status": "ERROR",
-                        "Reason": "Could not update token_balances",
+                        "Reason": " 2",
                         "error": mah_result,
                     })
                     return true
@@ -985,13 +1054,13 @@ app.post("/napi", async function (req, res) {
                                 TOKEN_ID: command_JSON.query_object.data.value.token_ID,
                                 secp256k1_PUBLIC_KEY: req.body.pubkey
                             },
-                            "values": {
+                            "value": {
                                 "value": command_JSON.query_object.data.value.operation_data.amount
                             }
                         }
                     }
                     let current_app_store = level_schema_config.app_data.sublevel(level_schema_config.app_root["RBAC.DD_token_RBAC.token_balances"], { valueEncoding: 'json' })
-                    query_result = await upsert_using_key_value_patterns_and_JSONSchema(
+                    let query_result = await upsert_using_key_value_patterns_and_JSONSchema(
                         level_schema_config.CID_store,
                         current_app_store,
                         level_schema_config.db_schema.schema["RBAC.DD_token_RBAC.token_balances"].key_value_patterns,
@@ -1001,8 +1070,8 @@ app.post("/napi", async function (req, res) {
                     if (query_result != true) {
                         res.send({
                             "status": "ERROR",
-                            "Reason": "Could not update token_balances",
-                            "error": mah_result,
+                            "Reason": "Could not update token_balances 3",
+                            "error": query_result,
                         })
                         return true
                     }

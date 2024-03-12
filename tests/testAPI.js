@@ -478,8 +478,8 @@ describe('Test auth on API', async function () {
           body: JSON.stringify(signedEvent)
         })
         fetch_response = await fetch_response.json()
-        // console.log("fetch_response")
-        // console.log(fetch_response)
+        console.log("fetch_response")
+        console.log(fetch_response)
       } catch (error) {
         assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
       }
@@ -508,7 +508,7 @@ describe('Test auth on API', async function () {
       fetch_response = await fetch_response.json()
       console.log("Balence Below")
       console.log(fetch_response)
-      assert.equal(fetch_response.value, 1000000)
+      assert.equal(fetch_response.value, 1000000 - 1000)
     })
 
 

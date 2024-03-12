@@ -213,38 +213,38 @@
                 "title": "Generated schema for Root",
                 "type": "object",
                 "properties": {
-                  "variables": {
-                    "type": "object",
-                    "properties": {
-                      "TOKEN_ID": {
-                        "type": "string"
-                      },
-                      "secp256k1_PUBLIC_KEY": {
-                        "type": "string"
-                      }
+                    "variables": {
+                        "type": "object",
+                        "properties": {
+                            "TOKEN_ID": {
+                                "type": "string"
+                            },
+                            "secp256k1_PUBLIC_KEY": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "TOKEN_ID",
+                            "secp256k1_PUBLIC_KEY"
+                        ]
                     },
-                    "required": [
-                      "TOKEN_ID",
-                      "secp256k1_PUBLIC_KEY"
-                    ]
-                  },
-                  "value": {
-                    "type": "object",
-                    "properties": {
-                      "value": {
-                        "type": "number"
-                      }
-                    },
-                    "required": [
-                      "value"
-                    ]
-                  }
+                    "value": {
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "value"
+                        ]
+                    }
                 },
                 "required": [
-                  "variables",
-                  "value"
+                    "variables",
+                    "value"
                 ]
-              }
+            }
         },
         "token_state": {
             "index_type": "caching",
@@ -256,42 +256,42 @@
                 "title": "Generated schema for Root",
                 "type": "object",
                 "properties": {
-                  "variables": {
-                    "type": "object",
-                    "properties": {
-                      "TOKEN_ID": {
-                        "type": "string"
-                      }
+                    "variables": {
+                        "type": "object",
+                        "properties": {
+                            "TOKEN_ID": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "TOKEN_ID"
+                        ]
                     },
-                    "required": [
-                      "TOKEN_ID"
-                    ]
-                  },
-                  "value": {
-                    "type": "object",
-                    "properties": {
-                      "token_ID": {
-                        "type": "string"
-                      },
-                      "token_transaction_count": {
-                        "type": "number"
-                      },
-                      "last_transaction_timestamp_ms": {
-                        "type": "number"
-                      }
-                    },
-                    "required": [
-                      "token_ID",
-                      "token_transaction_count",
-                      "last_transaction_timestamp_ms"
-                    ]
-                  }
+                    "value": {
+                        "type": "object",
+                        "properties": {
+                            "token_ID": {
+                                "type": "string"
+                            },
+                            "token_transaction_count": {
+                                "type": "number"
+                            },
+                            "last_transaction_timestamp_ms": {
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "token_ID",
+                            "token_transaction_count",
+                            "last_transaction_timestamp_ms"
+                        ]
+                    }
                 },
                 "required": [
-                  "variables",
-                  "value"
+                    "variables",
+                    "value"
                 ]
-              }
+            }
         }
     },
     "functions": {
