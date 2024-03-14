@@ -497,7 +497,7 @@ describe('Test auth on API', async function () {
           "data": {
             "variables": {
               TOKEN_ID: first_test_token,
-              secp256k1_PUBLIC_KEY: public_key
+              secp256k1_PUBLIC_KEY: public_key2
             }
           },
           "key_value_pattern" : "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
@@ -509,7 +509,7 @@ describe('Test auth on API', async function () {
       fetch_response = await fetch_response.json()
       console.log("Balence Below")
       console.log(fetch_response)
-      assert.equal(fetch_response.value, 1000000 - 1000)
+      assert.equal(fetch_response.value, 1000)
     })
 
 
