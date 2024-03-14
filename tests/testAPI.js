@@ -262,8 +262,8 @@ describe('Test auth on API', async function () {
               "operation_data": {
                 "token_name": "TEST TOKEN",
                 "token_ticker": "TEST",
-                "max_supply": "1000000000000000",
-                "limit_per_mint": "1000000000",
+                "max_supply": 1000000000,
+                "limit_per_mint": 1000000,
                 "decimals": 3,
                 "inital_token_admins": [
                   nip19.npubEncode(public_key)
@@ -302,6 +302,27 @@ describe('Test auth on API', async function () {
         assert.equal(true, false, "fetch failed, you need to be running the server to run these tests")
       }
       assert.equal(fetch_response.status == "success", true, `First event was not sucessful \n${JSON.stringify(fetch_response, null, 2)}`)
+      // Validate that the token was minted
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "name": "RBAC.DD_token_RBAC.token_IDs",
+          "data": {
+            "variables": {
+              TOKEN_ID: first_test_token
+            }
+          },
+          "key_value_pattern": "token_id_%${TOKEN_ID}%"
+        })
+      }
+
+      // Send the POST request
+      fetch_response = await fetch("http://localhost:8081/get_balance", options);
+      fetch_response = await fetch_response.json()
+      // TODO assert.equal the fetch_response and what we put in
     })
 
     it('Deploy a token using the root permissions, with invalid inital_token_admins', async function () {
@@ -324,8 +345,8 @@ describe('Test auth on API', async function () {
               "operation_data": {
                 "token_name": "TEST TOKEN",
                 "token_ticker": "TEST",
-                "max_supply": "100000000000000000",
-                "limit_per_mint": "1000000000",
+                "max_supply": 100000000000000000,
+                "limit_per_mint": 1000000000,
                 "decimals": 3,
                 "inital_token_admins": [
                   "!@#"
@@ -386,7 +407,7 @@ describe('Test auth on API', async function () {
               "operation_name": "mint",
               "timestamp_ms": Date.now(),
               "operation_data": {
-                "amount": 1000000,
+                "amount": 1000,
                 "to_public_key": nip19.npubEncode(public_key)
               }
             }
@@ -426,6 +447,60 @@ describe('Test auth on API', async function () {
     })
 
 
+    
+
+    it("Validate token from first mint", async function () {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "name": "RBAC.DD_token_RBAC.token_balances",
+          "data": {
+            "variables": {
+              TOKEN_ID: first_test_token,
+              secp256k1_PUBLIC_KEY: public_key
+            }
+          },
+          "key_value_pattern": "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
+        })
+      };
+
+      // Send the POST request
+      fetch_response = await fetch("http://localhost:8081/get_balance", options);
+      fetch_response = await fetch_response.json()
+      // console.log("Balence Below")
+      // console.log(fetch_response)
+      assert.equal(fetch_response.value, 1000)
+    })
+
+
+    it("Validate nonce was incremented", async function () {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "name": "RBAC.DD_token_RBAC.token_state",
+          "data": {
+            "variables": {
+              TOKEN_ID: first_test_token
+            }
+          },
+          "key_value_pattern": "token_id_%${TOKEN_ID}%"
+        })
+      };
+
+      // Send the POST request
+      fetch_response = await fetch("http://localhost:8081/get_balance", options);
+      fetch_response = await fetch_response.json()
+      // console.log("Balence Below")
+      // console.log(fetch_response)
+      assert.equal(fetch_response.token_transaction_count, 1)
+    })
+
 
     it('Transfer a token', async function () {
       let request_data = {
@@ -447,7 +522,7 @@ describe('Test auth on API', async function () {
               "operation_name": "transfer",
               "timestamp_ms": Date.now(),
               "operation_data": {
-                "amount": 1000,
+                "amount": 5,
                 "to_public_key": nip19.npubEncode(public_key2)
               }
             }
@@ -486,7 +561,34 @@ describe('Test auth on API', async function () {
       assert.equal(fetch_response.status == "success", true, `First event was not sucessful \n${JSON.stringify(fetch_response, null, 2)}`)
     })
 
-    it("first Balance", async function () {
+
+    it("Check sender Balance", async function () {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          "name": "RBAC.DD_token_RBAC.token_balances",
+          "data": {
+            "variables": {
+              TOKEN_ID: first_test_token,
+              secp256k1_PUBLIC_KEY: public_key
+            }
+          },
+          "key_value_pattern": "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
+        })
+      };
+
+      // Send the POST request
+      fetch_response = await fetch("http://localhost:8081/get_balance", options);
+      fetch_response = await fetch_response.json()
+      // console.log("Balence Below")
+      // console.log(fetch_response)
+      assert.equal(fetch_response.value, 1000 - 5)
+    })
+
+    it("Validate transfer to account balance", async function () {
       const options = {
         method: 'POST',
         headers: {
@@ -509,7 +611,7 @@ describe('Test auth on API', async function () {
       fetch_response = await fetch_response.json()
       // console.log("Balence Below")
       // console.log(fetch_response)
-      assert.equal(fetch_response.value, 1000)
+      assert.equal(fetch_response.value, 1000 - 5)
     })
 
 

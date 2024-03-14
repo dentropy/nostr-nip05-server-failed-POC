@@ -641,7 +641,7 @@ app.post("/napi", async function (req, res) {
                         // Well you gotta get the balance first before we can update it
 
                         // Update balence of who we are minting tokens for
-                        query_object.data.values = { value: command_JSON.query_object.data.value.operation_data.amount }
+                        query_object.data.value = { value: command_JSON.query_object.data.value.operation_data.amount }
                         query_result = await DD_upsert(
                             level_schema_config,
                             query_object
@@ -708,8 +708,9 @@ app.post("/napi", async function (req, res) {
                         level_schema_config.db_schema,
                         query_object
                     )
-                    console.log("token_balance_data")
-                    console.log(token_balance_data)
+                    // TODO validate the data coming out
+                    // console.log("token_balance_data")
+                    // console.log(token_balance_data)
                 } catch (error) {
                     res.send({
                         "status": "ERROR",
@@ -895,6 +896,8 @@ app.post("/napi", async function (req, res) {
                     level_schema_config.db_schema,
                     query_object
                 )
+                console.log("current_token_balence")
+                console.log(current_token_balence)
             } catch (error) {
                 current_token_balence = { value: 0 }
                 return true
@@ -913,13 +916,15 @@ app.post("/napi", async function (req, res) {
 
             // Update sender balance
             try {
-                let tmp_balance = Number(current_token_balence.value) - Number(command_JSON.query_object.data.value.operation_data.amount)
+                let tmp_balance =  Number(current_token_balence.value) - Number(command_JSON.query_object.data.value.operation_data.amount)
+                console.log("tmp_balance")
+                console.log(tmp_balance)
                 query_object = {
                     "name": "RBAC.DD_token_RBAC.token_balances",
                     "data": {
                         "variables": {
                             TOKEN_ID: command_JSON.query_object.data.value.token_ID,
-                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                            secp256k1_PUBLIC_KEY: command_JSON.query_object.data.value.signing_public_key.slice(4).toLowerCase()
                         },
                         "value": {
                             "value": tmp_balance
@@ -938,6 +943,26 @@ app.post("/napi", async function (req, res) {
                     })
                     return true
                 }
+                query_object = {
+                    "name": "RBAC.DD_token_RBAC.token_balances",
+                    "data": {
+                        "variables": {
+                            TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                        }
+                    },
+                    "key_value_pattern": "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
+                }
+                console.log("query_object")
+                console.log(query_object)
+                let testme = await get_query(
+                    level_schema_config.dddb,
+                    level_schema_config.db_schema,
+                    query_object
+                )
+                console.log("testme")
+                console.log(testme)
+    
             } catch (error) {
                 res.send({
                     "status": "ERROR",
@@ -947,7 +972,6 @@ app.post("/napi", async function (req, res) {
                 return true
             }
 
-
             /* Get reviever balance */
             try {
                 query_object = {
@@ -955,7 +979,7 @@ app.post("/napi", async function (req, res) {
                     "data": {
                         "variables": {
                             TOKEN_ID: command_JSON.query_object.data.value.token_ID,
-                            secp256k1_PUBLIC_KEY: req.body.pubkey
+                            secp256k1_PUBLIC_KEY: command_JSON.query_object.data.value.operation_data.to_public_keys.slice(4)
                         }
                     }
                 }
@@ -964,13 +988,47 @@ app.post("/napi", async function (req, res) {
                     level_schema_config.db_schema,
                     query_object
                 )
+                if(!Object.keys(current_token_balence).includes("value")){
+                    res.send({
+                        "status": "ERROR",
+                        "Reason": "Could not get reciever balance from database",
+                    })
+                    return true
+                }
             } catch (error) {
-                res.send({
-                    "status": "ERROR",
-                    "Reason": "Could not Get Balance 2",
-                    "error": `${error}`
-                })
-                return true
+                try {
+                    query_object = {
+                        "name": "RBAC.DD_token_RBAC.token_balances",
+                        "data": {
+                            "variables": {
+                                TOKEN_ID: command_JSON.query_object.data.value.token_ID,
+                                secp256k1_PUBLIC_KEY: command_JSON.query_object.data.value.operation_data.to_public_key.slice(4)
+                            },
+                            "value": {
+                                "value": command_JSON.query_object.data.value.operation_data.amount
+                            }
+                        }
+                    }
+                    query_result = await DD_upsert(
+                        level_schema_config,
+                        query_object
+                    )
+                    if(query_result != true){
+                        res.send({
+                            "status": "ERROR",
+                            "Reason": "Can't create balance for reciever DD_upsert",
+                            "error": `${error}`
+                        })
+                        return true
+                    }
+                } catch (error) {
+                    res.send({
+                        "status": "ERROR",
+                        "Reason": "Can't create balance for reciever",
+                        "error": `${error}`
+                    })
+                    return true
+                }
             }
 
 
@@ -1040,7 +1098,7 @@ app.post("/napi", async function (req, res) {
                     "data": {
                         "variables": {
                             TOKEN_ID: command_JSON.query_object.data.value.token_ID,
-                            secp256k1_PUBLIC_KEY: command_JSON.query_object.data.value.operation_data.to_public_key
+                            secp256k1_PUBLIC_KEY: command_JSON.query_object.data.value.operation_data.to_public_key.slice(4)
                         }
                     }
                 }
@@ -1056,7 +1114,7 @@ app.post("/napi", async function (req, res) {
                             TOKEN_ID: command_JSON.query_object.data.value.token_ID,
                             secp256k1_PUBLIC_KEY: req.body.pubkey
                         },
-                        "values": {
+                        "value": {
                             "value": command_JSON.query_object.data.value.operation_data.amount
                         }
                     }
@@ -1069,7 +1127,7 @@ app.post("/napi", async function (req, res) {
                     res.send({
                         "status": "ERROR",
                         "Reason": " 2",
-                        "error": mah_result,
+                        "error": query_result,
                     })
                     return true
                 }
@@ -1201,6 +1259,27 @@ app.post("/napi", async function (req, res) {
         description : "We made it to the end"
     })
     return true
+})
+
+app.post('/query', async function (req, res) {
+    // Check if coupon code if valid and what domains it supports
+    // Claim coupon code
+    try {
+        let mah_CID = await get_query(
+            level_schema_config.dddb,
+            level_schema_config.db_schema,
+            req.body
+        )
+        res.send(mah_CID)
+        return true
+    } catch (error) {
+        res.send({
+            "status": "error",
+            "description": "Could not resolve query",
+            "error": error
+        })
+        return true
+    }
 })
 
 app.post('/get_balance', async function (req, res) {

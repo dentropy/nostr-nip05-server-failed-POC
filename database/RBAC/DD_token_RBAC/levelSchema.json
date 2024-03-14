@@ -88,10 +88,10 @@
                                         "type": "string"
                                     },
                                     "max_supply": {
-                                        "type": "string"
+                                        "type": "number"
                                     },
                                     "limit_per_mint": {
-                                        "type": "string"
+                                        "type": "number"
                                     },
                                     "decimals": {
                                         "type": "number"
@@ -376,10 +376,10 @@
                                         "type": "string"
                                     },
                                     "max_supply": {
-                                        "type": "string"
+                                        "type": "number"
                                     },
                                     "limit_per_mint": {
-                                        "type": "string"
+                                        "type": "number"
                                     },
                                     "decimals": {
                                         "type": "number"

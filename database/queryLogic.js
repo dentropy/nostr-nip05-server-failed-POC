@@ -12,10 +12,10 @@ export async function upsert_using_key_value_patterns(
     key_value_patterns, // Should be a list
     input_object
 ) {
-    console.log("\n")
-    console.log("Running upsert_using_key_value_patterns")
-    console.log("key_value_patterns")
-    console.log(key_value_patterns)
+    // console.log("\n")
+    // console.log("Running upsert_using_key_value_patterns")
+    // console.log("key_value_patterns")
+    // console.log(key_value_patterns)
 
     // Get all the variables we need from key_value_patterns
     let key_tracker = {}
@@ -27,8 +27,8 @@ export async function upsert_using_key_value_patterns(
         }
     }
 
-    console.log("key_tracker")
-    console.log(key_tracker)
+    // console.log("key_tracker")
+    // console.log(key_tracker)
 
 
     // Check if input_object.variables contains all the correct variables
@@ -68,10 +68,10 @@ export async function upsert_using_key_value_patterns(
         substituted_key_value_patterns.push(temp_kv.replace(/\${(.*?)}/g, (match, key) => input_object.variables[key] || match))
     }
 
-    console.log("key_value_patterns")
-    console.log(key_value_patterns)
-    console.log("substituted_key_value_patterns")
-    console.log(substituted_key_value_patterns)
+    // console.log("key_value_patterns")
+    // console.log(key_value_patterns)
+    // console.log("substituted_key_value_patterns")
+    // console.log(substituted_key_value_patterns)
 
 
     // Upsert LevelDB making sure to log the change
@@ -130,13 +130,13 @@ export async function upsert_using_key_value_patterns_and_JSONSchema(
     input_object,
     JSONSchema_for_validation
 ) {
-    // Check input_object.data valiates with JSONSchema_for_validation, otherwise return error
-    console.log("\n\n")
-    console.log("JSONSchema_then_input_object")
-    console.log(JSON.stringify(JSONSchema_for_validation, null, 2))
-    console.log(JSON.stringify(input_object, null, 2))
-    console.log("key value patterns")
-    console.log(key_value_patterns)
+    /* Check input_object.data valiates with JSONSchema_for_validation, otherwise return error */
+    // console.log("\n\n")
+    // console.log("JSONSchema_then_input_object")
+    // console.log(JSON.stringify(JSONSchema_for_validation, null, 2))
+    // console.log(JSON.stringify(input_object, null, 2))
+    // console.log("key value patterns")
+    // console.log(key_value_patterns)
 
     const ajv = new Ajv()
     const JSONSchema_validator = ajv.compile(JSONSchema_for_validation)
