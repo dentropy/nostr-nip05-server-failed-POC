@@ -486,7 +486,7 @@ describe('Test auth on API', async function () {
       assert.equal(fetch_response.status == "success", true, `First event was not sucessful \n${JSON.stringify(fetch_response, null, 2)}`)
     })
 
-    it("first Balance", async function() {
+    it("first Balance", async function () {
       const options = {
         method: 'POST',
         headers: {
@@ -500,10 +500,10 @@ describe('Test auth on API', async function () {
               secp256k1_PUBLIC_KEY: public_key2
             }
           },
-          "key_value_pattern" : "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
+          "key_value_pattern": "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
         })
       };
-  
+
       // Send the POST request
       fetch_response = await fetch("http://localhost:8081/get_balance", options);
       fetch_response = await fetch_response.json()

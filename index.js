@@ -621,7 +621,6 @@ app.post("/napi", async function (req, res) {
                     return true
                 }
 
-
                 // Get balence of who we are minting tokens for
                 try {
                     query_object = {
@@ -722,15 +721,11 @@ app.post("/napi", async function (req, res) {
 
                 }
 
-
                 /* Update token_state */
-
-
                 token_state_data.token_transaction_count += 1
                 token_state_data.last_transaction_timestamp_ms = command_JSON.query_object.data.value.timestamp_ms
                 try {
-                    console.log("I AM HERE")
-                    let mah_result = await DD_upsert(
+                    query_object = await DD_upsert(
                         level_schema_config,
                         {
                             "name": "RBAC.DD_token_RBAC.token_state",
@@ -742,7 +737,7 @@ app.post("/napi", async function (req, res) {
                             },
                         }
                     )
-                    if (mah_result != true) {
+                    if (query_object != true) {
                         res.send({
                             "status": "ERROR",
                             "Reason": "Could not update token_state",
@@ -750,8 +745,6 @@ app.post("/napi", async function (req, res) {
                         })
                         return true
                     }
-                    console.log("mah_result mah_result")
-                    console.log(JSON.stringify(mah_result))
                 } catch (error) {
                     res.send({
                         "status": "ERROR",
@@ -761,6 +754,9 @@ app.post("/napi", async function (req, res) {
                     return true
                 }
             }
+            res.send({
+                "status": "success"
+            })
             return true
         }
     }
@@ -1116,11 +1112,12 @@ app.post("/napi", async function (req, res) {
 
             /* Store Transactions */
             try {
-                tmp_input_data = {
+                query_object = {
                     "variables": {
                         "TOKEN_ID": command_JSON.query_object.data.value.token_ID,
-                        "TOKEN_TRANSACTION_NUM": token_state_data.token_transaction_count,
-                        "secp256k1_PUBLIC_KEY": req.body.pubkey
+                        "TOKEN_TRANSACTION_NUM": String(0),// token_state_data.token_transaction_count,
+                        "secp256k1_PUBLIC_KEY": req.body.pubkey,
+                        "SPECIFIC_TOKEN_HOLDER_NONCE" : String(12)
                     },
                     "value": {
                         "app_name" : "DD_token_RBAC",
@@ -1128,9 +1125,11 @@ app.post("/napi", async function (req, res) {
                         "operation_name" : "mint",
                         "previous_transaction_CID" : "",
                         "token_ID": command_JSON.query_object.data.value.token_ID,
-                        "token_transaction_count": token_state_data.token_transaction_count,
-                        "signing_public_key" : eq.body.pubkey,
-                        "last_transaction_timestamp_ms": command_JSON.query_object.data.value.timestamp_ms
+                        "token_transaction_count": 12,// token_state_data.token_transaction_count,
+                        "signing_public_key" : req.body.pubkey,
+                        "last_transaction_timestamp_ms": command_JSON.query_object.data.value.timestamp_ms,
+                        "token_nonce" : 12,
+                        "sender_nonce" : 12
 
                     }
                 }
@@ -1138,14 +1137,15 @@ app.post("/napi", async function (req, res) {
                     level_schema_config,
                     {
                         "name": "RBAC.DD_token_RBAC.token_transactions",
-                        "data": tmp_input_data
+                        "data": query_object
                     }
                 )
                 if (query_result != true) {
                     res.send({
                         "status": "ERROR",
-                        "Reason": "Could not store Mint transaction DD_upsert",
-                        "query_result": query_result
+                        "Reason": "Could not store Transfer transaction DD_upsert",
+                        "query_result": query_result,
+                        "query_object" : query_object
                     })
                     return true
                 }
@@ -1162,13 +1162,15 @@ app.post("/napi", async function (req, res) {
             token_state_data.token_transaction_count += 1
             token_state_data.last_transaction_timestamp_ms = command_JSON.query_object.data.value.timestamp_ms
             try {
+                token_state_data.token_ID = command_JSON.query_object.data.value.token_ID;
+                token_state_data.token_transaction_count = 12;
                 let mah_result = await DD_upsert(
                     level_schema_config,
                     {
                         "name": "RBAC.DD_token_RBAC.token_state",
                         "data": {
                             variables: {
-                                TOKEN_ID: token_state_data.token_ID
+                                TOKEN_ID: command_JSON.query_object.data.value.token_ID
                             },
                             value: token_state_data
                         }
@@ -1194,14 +1196,11 @@ app.post("/napi", async function (req, res) {
     }
 
 
-    try {
-        res.send({ status: "ERROR" })
-        return true
-    } catch (err) {
-        console.log(err)
-        // res.send({"status" : "error"})
-        return true
-    }
+    res.send({ 
+        status: "success",
+        description : "We made it to the end"
+    })
+    return true
 })
 
 app.post('/get_balance', async function (req, res) {
