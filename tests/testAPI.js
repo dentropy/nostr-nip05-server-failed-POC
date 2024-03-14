@@ -507,8 +507,8 @@ describe('Test auth on API', async function () {
       // Send the POST request
       fetch_response = await fetch("http://localhost:8081/get_balance", options);
       fetch_response = await fetch_response.json()
-      console.log("Balence Below")
-      console.log(fetch_response)
+      // console.log("Balence Below")
+      // console.log(fetch_response)
       assert.equal(fetch_response.value, 1000)
     })
 

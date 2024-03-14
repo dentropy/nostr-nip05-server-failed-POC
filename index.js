@@ -150,12 +150,19 @@ app.post("/napi", async function (req, res) {
     if (command_JSON.query_object.name == "apps.nostr_NIP05_relay_map.NIP05_internet_identifier") {
         if (command_JSON.query_type == "upsert") {
             if (roles.includes("root")) {
-                await DD_upsert(
-                    level_schema_config,
-                    command_JSON.query_object
-                )
-                // Create nostr.json
+                // Regenerate nostr.json
                 try {
+                    query_result = await DD_upsert(
+                        level_schema_config,
+                        command_JSON.query_object
+                    )
+                    if (query_result != true) {
+                        res.send({
+                            "status": "error",
+                            "description": "generate_nostr_dot_json(level_schema_config) could not build correctly DD_upsert"
+                        })
+                        return true
+                    }
                     await generate_nostr_dot_json(level_schema_config, command_JSON)
                     res.send({ "status": "success" })
                     return true
@@ -245,12 +252,19 @@ app.post("/napi", async function (req, res) {
     if (command_JSON.query_object.name == "RBAC.root_RBAC.secp256k1_auth_app") {
         if (command_JSON.query_type == "upsert") {
             if (roles.includes("root")) {
-                let query_result = null;
                 try {
                     query_result = await DD_upsert(
                         level_schema_config,
                         command_JSON.query_object
                     )
+                    if (query_result != true) {
+                        res.send({
+                            "status": "error",
+                            "description": "query_result did not work DD_upsert",
+                            "error": error
+                        })
+                        return true
+                    }
                 } catch (error) {
                     res.send({ "ERROR": "query_result did not work", "description": error })
                     return true
@@ -461,7 +475,7 @@ app.post("/napi", async function (req, res) {
                                 TOKEN_ID: command_JSON.query_object.data.value.token_ID
                             }
                         },
-                        "key_value_pattern" : "token_id_%${TOKEN_ID}%"
+                        "key_value_pattern": "token_id_%${TOKEN_ID}%"
                     }
                     token_ID_data = await get_query(
                         level_schema_config.dddb,
@@ -544,26 +558,45 @@ app.post("/napi", async function (req, res) {
                 }
                 // Store Transactions
                 try {
-                    console.log("token_state_data.token_transaction_count")
-                    console.log(token_state_data.token_transaction_count)
-                    console.log(command_JSON.query_object.data.value.token_ID)
-                    console.log(req.body.pubkey)
-                    console.log(token_state_data.token_transaction_count)
+                    // console.log("token_state_data.token_transaction_count")
+                    // console.log(token_state_data.token_transaction_count)
+                    // console.log(command_JSON.query_object.data.value.token_ID)
+                    // console.log(req.body.pubkey)
+                    // console.log(token_state_data.token_transaction_count)
+                    // tmp_input_data = {
+                    //     "variables": {
+                    //         "TOKEN_ID": command_JSON.query_object.data.value.token_ID,
+                    //         "TOKEN_TRANSACTION_NUM": token_state_data.token_transaction_count,
+                    //         "secp256k1_PUBLIC_KEY": req.body.pubkey
+                    //     },
+                    //     "value": {
+                    //         "token_ID": command_JSON.query_object.data.value.token_ID,
+                    //         "token_transaction_count": token_state_data.token_transaction_count,
+                    //         "last_transaction_timestamp_ms": command_JSON.query_object.data.value.timestamp_ms
+
+                    //     }
+                    // }
                     tmp_input_data = {
                         "variables": {
                             "TOKEN_ID": command_JSON.query_object.data.value.token_ID,
-                            "TOKEN_TRANSACTION_NUM": token_state_data.token_transaction_count,
-                            "secp256k1_PUBLIC_KEY": req.body.pubkey
+                            "TOKEN_TRANSACTION_NUM": String(token_state_data.token_transaction_count),
+                            "secp256k1_PUBLIC_KEY": req.body.pubkey,
+                            "SPECIFIC_TOKEN_HOLDER_NONCE" : "0"
                         },
                         "value": {
+                            "app_name" : "DD_token_RBAC",
+                            "version" : "0.0.1",
+                            "operation_name" : "mint",
+                            "previous_transaction_CID" : "",
+                            "sender_nonce" : 0,
+                            "token_nonce" : 0,
                             "token_ID": command_JSON.query_object.data.value.token_ID,
                             "token_transaction_count": token_state_data.token_transaction_count,
+                            "signing_public_key" : req.body.pubkey,
                             "last_transaction_timestamp_ms": command_JSON.query_object.data.value.timestamp_ms
-
+    
                         }
                     }
-                    console.log("tmp_input_data")
-                    console.log(tmp_input_data)
                     query_result = await DD_upsert(
                         level_schema_config,
                         {
@@ -571,24 +604,24 @@ app.post("/napi", async function (req, res) {
                             "data": tmp_input_data
                         }
                     )
-                    if (query_result != true){
+                    if (query_result != true) {
                         res.send({
                             "status": "ERROR",
-                            "Reason": "Could not store transaction",
+                            "Reason": "Could not store minting transaction DD_upsert",
                             "query_result": query_result
                         })
                     }
                 } catch (error) {
                     res.send({
                         "status": "ERROR",
-                        "Reason": "Could not store transaction",
+                        "Reason": "Could not store minting transaction",
                         "error": `${error}`,
                         "data": `${JSON.stringify(tmp_input_data)}`
                     })
                     return true
                 }
-                
-                
+
+
                 // Get balence of who we are minting tokens for
                 try {
                     query_object = {
@@ -641,7 +674,7 @@ app.post("/napi", async function (req, res) {
                             level_schema_config,
                             query_object
                         )
-                        if(query_result != true){
+                        if (query_result != true) {
                             res.send({
                                 "status": "ERROR",
                                 "Reason": "Could not update token_balances query_result errored out for DD_upsert",
@@ -657,7 +690,7 @@ app.post("/napi", async function (req, res) {
                         })
                         return true
                     }
-                }                
+                }
                 // /* Check the balance */
 
 
@@ -683,13 +716,13 @@ app.post("/napi", async function (req, res) {
                         "status": "ERROR",
                         "Reason": "Balance did not update",
                         "error": error,
-                        "query_object" : query_object
+                        "query_object": query_object
                     })
                     return true
 
                 }
-                
-                
+
+
                 /* Update token_state */
 
 
@@ -859,7 +892,7 @@ app.post("/napi", async function (req, res) {
                             secp256k1_PUBLIC_KEY: req.body.pubkey
                         }
                     },
-                    "key_value_pattern" : "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
+                    "key_value_pattern": "token_balence_to_public_key_%${TOKEN_ID}%_%${secp256k1_PUBLIC_KEY}%"
                 }
                 current_token_balence = await get_query(
                     level_schema_config.dddb,
@@ -867,7 +900,7 @@ app.post("/napi", async function (req, res) {
                     query_object
                 )
             } catch (error) {
-                current_token_balence = { value : 0 }
+                current_token_balence = { value: 0 }
                 return true
             }
 
@@ -901,7 +934,7 @@ app.post("/napi", async function (req, res) {
                     level_schema_config,
                     query_object
                 )
-                if(query_result != true){
+                if (query_result != true) {
                     res.send({
                         "status": "ERROR",
                         "Reason": "Can't update sender balance DD_upsert",
@@ -943,8 +976,8 @@ app.post("/napi", async function (req, res) {
                 })
                 return true
             }
-            
-            
+
+
             /* Update Reciever Balance */
             try {
                 query_object = {
@@ -978,11 +1011,11 @@ app.post("/napi", async function (req, res) {
                         level_schema_config,
                         query_object
                     )
-                    if (query_result != true){
+                    if (query_result != true) {
                         res.send({
                             "status": "ERROR",
                             "Reason": "Could not store updated balence in RBAC.DD_token_RBAC.token_transactions to send tokens to someone DD_upsert",
-                            "error" : query_result
+                            "error": query_result
                         })
                         return true
                     }
@@ -1090,8 +1123,13 @@ app.post("/napi", async function (req, res) {
                         "secp256k1_PUBLIC_KEY": req.body.pubkey
                     },
                     "value": {
+                        "app_name" : "DD_token_RBAC",
+                        "version" : "0.0.1",
+                        "operation_name" : "mint",
+                        "previous_transaction_CID" : "",
                         "token_ID": command_JSON.query_object.data.value.token_ID,
                         "token_transaction_count": token_state_data.token_transaction_count,
+                        "signing_public_key" : eq.body.pubkey,
                         "last_transaction_timestamp_ms": command_JSON.query_object.data.value.timestamp_ms
 
                     }
@@ -1099,22 +1137,22 @@ app.post("/napi", async function (req, res) {
                 query_result = await DD_upsert(
                     level_schema_config,
                     {
-                        "name" : "RBAC.DD_token_RBAC.token_transactions",
-                        "data" : tmp_input_data
+                        "name": "RBAC.DD_token_RBAC.token_transactions",
+                        "data": tmp_input_data
                     }
                 )
-                if(query_result != true){
+                if (query_result != true) {
                     res.send({
                         "status": "ERROR",
-                        "Reason": "Could not store transaction DD_upsert",
-                        "query_result" : query_result
+                        "Reason": "Could not store Mint transaction DD_upsert",
+                        "query_result": query_result
                     })
                     return true
                 }
             } catch (error) {
                 res.send({
                     "status": "ERROR",
-                    "Reason": "Could not store transaction",
+                    "Reason": "Could not store Mint transaction",
                     "error": `${error}`,
                     "data": `${JSON.stringify(tmp_input_data)}`
                 })
@@ -1127,8 +1165,8 @@ app.post("/napi", async function (req, res) {
                 let mah_result = await DD_upsert(
                     level_schema_config,
                     {
-                        "name" : "RBAC.DD_token_RBAC.token_state",
-                        "data" : {
+                        "name": "RBAC.DD_token_RBAC.token_state",
+                        "data": {
                             variables: {
                                 TOKEN_ID: token_state_data.token_ID
                             },

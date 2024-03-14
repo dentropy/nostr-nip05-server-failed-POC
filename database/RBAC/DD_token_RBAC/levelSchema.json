@@ -152,42 +152,78 @@
                 "title": "Generated schema for Root",
                 "type": "object",
                 "properties": {
-                    "app_name": {
-                        "type": "string"
-                    },
-                    "version": {
-                        "type": "string"
-                    },
-                    "previous_transaction_CID": {
-                        "type": "string"
-                    },
-                    "signing_public_key": {
-                        "type": "string"
-                    },
-                    "nonce": {
-                        "type": "number"
-                    },
-                    "token_ID": {
-                        "type": "string"
-                    },
-                    "operation_name": {
-                        "type": "string"
-                    },
-                    "operation_data": {
+                    "variables": {
                         "type": "object",
-                        "properties": {},
-                        "required": []
+                        "properties": {
+                            "TOKEN_ID": {
+                                "type": "string"
+                            },
+                            "TOKEN_TRANSACTION_NUM": {
+                                "type": "string"
+                            },
+                            "secp256k1_PUBLIC_KEY": {
+                                "type": "string"
+                            },
+                            "SPECIFIC_TOKEN_HOLDER_NONCE": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "TOKEN_ID",
+                            "TOKEN_TRANSACTION_NUM",
+                            "secp256k1_PUBLIC_KEY"
+                        ]
+                    },
+                    "value": {
+                        "type": "object",
+                        "properties": {
+                            "app_name": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "string"
+                            },
+                            "previous_transaction_CID": {
+                                "type": "string"
+                            },
+                            "token_ID": {
+                                "type": "string"
+                            },
+                            "last_transaction_timestamp_ms": {
+                                "type": "number"
+                            },
+                            "token_nonce": {
+                                "type": "number"
+                            },
+                            "signing_public_key": {
+                                "type": "string"
+                            },
+                            "sender_nonce": {
+                                "type": "number"
+                            },
+                            "operation_name": {
+                                "type": "string"
+                            },
+                            "operation_data": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "app_name",
+                            "version",
+                            "previous_transaction_CID",
+                            "token_ID",
+                            "last_transaction_timestamp_ms",
+                            "token_nonce",
+                            "signing_public_key",
+                            "sender_nonce",
+                            "operation_name"
+                        ]
                     }
                 },
                 "required": [
-                    "app_name",
-                    "version",
-                    "previous_transaction_CID",
-                    "signing_public_key",
-                    "nonce",
-                    "token_ID",
-                    "operation_name",
-                    "operation_data"
+                    "variables",
+                    "value"
                 ]
             }
         },
